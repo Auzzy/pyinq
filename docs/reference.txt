@@ -1,0 +1,121 @@
+The following document is a reference for all the features PyInq makes available to you, and how to use them.
+
+TAGS
+All tags are contained within "pyinq.tags".
+Note that all arguments must be provided as keyword arguments.
+
+TEST REGISTRATION
+- @test([expected=None, suite=None])
+Registers the function/method that follows as a test. When the containing module is run, the marked function will be executed and its result reported.
+
+If provided, expected signifies that this test should raise the specified error. Note that if any expression in the test raises the desired exception, the test passes. For more fine grain control over expected exceptions, see assert.assert_raise.
+
+The suite argument (if provided) must be a string. The test will be added to the named suite, which can be run from the command line (see "Test Execution" below).
+
+- @testClass([suite=None])
+Registers the class as containing tests, allowing them to be properly bound to their containing class. It also allows classes to be skipped, and to be put into a suite Behavior of registered tests in an unregistered class is undefined.
+
+The suite argument (if provided) must be a string. All methods in the class will be added to the named suite, which can be run from the command line (see "Test Execution" below). Note that this includes methods listed to be included in a different suite. In this case, the test will appear in both suites.
+
+TEST FIXTURES
+Note that any fixtures defined outside a class treat all module scope tests as belonging to a single class.
+
+- @before
+- @after
+Run before and after each individual test function. Each class may define its own before and after function. A module may define its own before and after function.
+
+- @beforeClass
+- @afterClass
+Run before the class's first test and after its last test. A module may define its own beforeClass and afterClass function.
+
+- @beforeModule
+- @afterModule
+Run before and after the containing module; that is, all tests in the module. This function should be defined in the module scope.
+
+- @beforeSuite([suite=None])
+- @afterSuite([suite=None])
+Run before and after the named suite. If no suite is provided, it is run only when no specific suite is run, effectively treating all detected tests as part of the same suite. This function should be defined in the module scope.
+
+SKIP
+- @skip
+Unconditionally skips the function or class.
+
+- @skipIf(cond)
+Skips the function or class only if the condition is True
+
+- @skipUnless(cond)
+Skips the function or class unless the condition is True
+
+
+ASSERTS/EVALS
+Each assert function ("assert_*") causes the test to halt if it evaluates to False.
+Each eval function ("eval_*") DOES NOT cause the test to halt if it evaluates to False. The result is simply recorded, and the test proceeds.
+Other than that, functions with corresponding names behave exactly the same.
+
+- assert_true(expr)
+- assert_false(expr)
+- eval_true(expr)
+- eval_false(expr)
+Evaluates the truth value of expr.
+Note that the truth value is NOT the same as expr==True. For that operation, use either assert_equal(expr,True) or assert_is(expr,True).
+
+- assert_none(expr)
+- assert_not_none(expr)
+- eval_none(expr)
+- eval_not_none(expr)
+Evalutes whether or not expr is None.
+
+- assert_equal(actual, expected)
+- assert_not_equal(actual, expected)
+- eval_equal(actual, expected)
+- eval_not_equal(actual, expected)
+Test the equivalence of actual and expected. Although not enforced, actual should be the result of the expression under test and expected should be the passing value. Equivalence is determined by the == and != operators (equality by value).
+
+- assert_is(actual, expected)
+- assert_is_not(actual, expected)
+- eval_is(actual, expected)
+- eval_is_not(actual, expected)
+Tests whether actual and expected are the same object as determined by the is operator (equality by reference).
+
+- assert_in(item, container)
+- assert_not_in(item, container)
+- eval_in(item, container)
+- eval_not_in(item, container)
+Tests for membership of item in container.
+
+- assert_is_instance(obj, cls)
+- assert_is_not_instance(bj, cls)
+- eval_is_instance(obj, cls)
+- eval_is_not_instance(bj, cls)
+Tests whether obj is an instance of cls. Just as with isinstance, cls can be a tuple of classes.
+
+- assert_raises(exception, func, *args, **kwargs):
+- eval_raises(exception, func, *args, **kwargs):
+Executes func with the provided args and kwargs, and ensures that an exception of the provided type is raised. If an exception is raised of a different type, then the test will result in an error. If no exception occurs, the test fails.
+
+
+FAIL
+- fail(mess)
+Unconditionally causes the test to fail and exit, and prints the given message.
+
+
+TEST EXECUTION
+With no arguments, all module tests execute. Further control can be gained via command line arguments, listed below.
+
+python module [--suite name] [--html [filename]]
+
+--suite name
+Executes a specific suite, whose name is provided as an argument to the --suite option.
+
+--html [FILENAME]
+If present, the report will be output as an HTML file instead of being writte to stdout. With the FILENAME argument, the HTML will be written to a file called FILENAME. If no filename is provided, it is output to "./[module_name]_output.html".
+
+TEST OUTPUT
+During test execution, a line will be printed to stdout which names the currently executing test or fixture. If the test or fixture prints any output, it will appear below that line. This output will be printed to standard out, regardless of output options.
+
+RESULTS
+Results are organized by class, and then by test.
+
+Each assert/eval in a test gets its own line. They are color coded by status; green for success, red for failure, and blue for an unexpected error. The latter will print a traceback.
+
+In addition, the test's status (passed, failed, or error) is printed below the test name, and is color coded according to the same color scheme, with one addition. If a test does not contain any asserts, then "NO ASSERTS" is printed black on a gray background.

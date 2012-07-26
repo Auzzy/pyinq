@@ -1,0 +1,5 @@
+v0.1.1, July 26, 2012 --
+    - Renamed each tag to begin with a lower case letter.
+    - Fixed a bug in the eval example.
+
+v0.1, July 23, 2012 -- Initial release.
