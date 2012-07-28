@@ -123,6 +123,6 @@ unittest basic example::
 
 Contact Me
 ----------
-If you have any questions or comments, find any bugs, or wish to make any feature requests, shoot me an email at `metalnut4@netscape.net <mailto:metalnut4@netscape.net>`_. I am especially hoping to receive bug reports, for although I am unaware of any bugs, fresh sets of eyes have a better chance of finding what I missed.
+If you have any questions or comments, find any bugs, or wish to make any feature requests, shoot me an email at `pyinq.test@gmail.com<mailto:pyinq.test@gmail.com>`_. I am especially hoping to receive bug reports, for although I am unaware of any bugs, fresh sets of eyes have a better chance of finding what I missed.
 
 Also, I will be setting up a separate web page and public GitHub repo for this project very soon. I will post those links here once they are ready.
