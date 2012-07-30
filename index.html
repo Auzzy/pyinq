@@ -1,0 +1,186 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Pyinq by Auzzy</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1 class="header">Pyinq</h1>
+        <p class="header">An alternative Python unit test framework</p>
+
+        <ul>
+          <li class="download"><a class="buttons" href="https://github.com/Auzzy/pyinq/zipball/master">Download ZIP</a></li>
+          <li class="download"><a class="buttons" href="https://github.com/Auzzy/pyinq/tarball/master">Download TAR</a></li>
+          <li><a class="buttons github" href="https://github.com/Auzzy/pyinq">View On GitHub</a></li>
+        </ul>
+
+        <p class="header">This project is maintained by <a class="header name" href="https://github.com/Auzzy">Auzzy</a></p>
+
+
+      </header>
+      <section>
+        <h1>PyInq</h1>
+
+<p>PyInq is a Python unit testing framework created in the tradition of the xUnit family. Specifically, it draws its influence from JUnit and PyUnit (unittest).</p>
+
+<p>The bulk of PyInq's functionality was influenced by PyUnit. However, Java coders will recogize the use of decorators for test identification from JUnit 4. Selenium users will recogize PyInq's suite of "eval" functions; they were influenced by Selenium's "verify" functions.</p>
+
+<h2>Differences From PyUnit (unittest)</h2>
+
+<ul>
+<li>Test identification by decorators</li>
+<li>Module level tests</li>
+<li>Simplified suite creation and execution
+
+<ul>
+<li>No calling or invoking a test runner</li>
+<li>Create suites with a single keyword argument, not a separate object</li>
+</ul>
+</li>
+<li>Eval functions</li>
+<li>Detailed, color coded output
+
+<ul>
+<li>For each test, prints the result of each assert and eval statement</li>
+<li>Color coded based on result</li>
+</ul>
+</li>
+<li>Pythonic naming</li>
+</ul><h2>Other Notable Features</h2>
+
+<ul>
+<li>Test fixtures
+
+<ul>
+<li>At test, class, module, and suite level</li>
+</ul>
+</li>
+<li>Expected exceptions</li>
+<li>Conditional skips</li>
+<li>Output to command line (CLI) or an HTML file
+
+<ul>
+<li>CLI defaults to color output in Windows console and Linux bash</li>
+<li>CLI defaults to black and white in any other system</li>
+</ul>
+</li>
+<li>Command line test module/suite execution</li>
+</ul><h2>Coming soon</h2>
+
+<ul>
+<li>Test discovery</li>
+<li>Context manager for assertRaises</li>
+<li>Command-line single test case/class execution</li>
+<li>Multi-suite tests</li>
+<li>Custom printer modules</li>
+<li>Python 3 support</li>
+</ul><h2>Documentation</h2>
+
+<p>I have not yet had the chance to write up much documentation. It's high on my TODO list as undocumented projects can be aggrevating to work with. I intend to produce a basic guide to using PyInq, as well as code comments and docstrings.</p>
+
+<p>For now, there is basic documentation in the download. In the docs folder, there is a file called "reference.txt". This assumes knowledge of unit test frameworks, and serves as a basic reference for what PyInq includes, and how to use it. The other is a directory called examples, which contains a number of tests that exercise various aspects of PyInq. I've tried to name them in a straightforward manner to enable them to giude your usage of this package.</p>
+
+<h2>Basic Examples</h2>
+
+<p>Simply run the code as is to try any of these examples for youself</p>
+
+<p>A single module level test:</p>
+
+<div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyinq.asserts</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">pyinq.tags</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="nd">@test</span>
+<span class="k">def</span> <span class="nf">atest</span><span class="p">():</span>
+    <span class="n">assert_true</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+
+<p>Test expecting an error:</p>
+
+<div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyinq.asserts</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">pyinq.tags</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="nd">@test</span><span class="p">(</span><span class="n">expected</span><span class="o">=</span><span class="ne">ValueError</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">tester</span><span class="p">():</span>
+    <span class="n">assert_equal</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="s">"4.0"</span><span class="p">),</span><span class="mi">4</span><span class="p">)</span>
+</pre></div>
+
+<p>Using an instance variable::</p>
+
+<div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyinq.asserts</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">pyinq.tags</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="nd">@testClass</span>
+<span class="k">class</span> <span class="nc">Class1</span><span class="p">:</span>
+    <span class="nd">@before</span>
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">():</span>
+        <span class="n">this</span><span class="o">.</span><span class="n">num</span> <span class="o">=</span> <span class="mi">4</span>
+
+    <span class="nd">@test</span>
+    <span class="k">def</span> <span class="nf">test</span><span class="p">():</span>
+        <span class="n">assert_equal</span><span class="p">(</span><span class="n">this</span><span class="o">.</span><span class="n">num</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span>
+        <span class="n">this</span><span class="o">.</span><span class="n">num</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="nd">@after</span>
+    <span class="k">def</span> <span class="nf">teardown</span><span class="p">():</span>
+        <span class="n">assert_equal</span><span class="p">(</span><span class="n">this</span><span class="o">.</span><span class="n">num</span><span class="p">,</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+
+<p>unittest basic example::</p>
+
+<div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyinq.asserts</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">pyinq.tags</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">random</span>
+
+<span class="nd">@testClass</span>
+<span class="k">class</span> <span class="nc">TestSequenceFunctions</span><span class="p">:</span>
+    <span class="nd">@before</span>
+    <span class="k">def</span> <span class="nf">setUp</span><span class="p">():</span>
+        <span class="n">this</span><span class="o">.</span><span class="n">seq</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+
+    <span class="nd">@test</span>
+    <span class="k">def</span> <span class="nf">test_shuffle</span><span class="p">():</span>
+        <span class="c"># make sure the shuffled TestSequenceFunctions.sequence does not lose any elements</span>
+        <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">this</span><span class="o">.</span><span class="n">seq</span><span class="p">)</span>
+        <span class="n">this</span><span class="o">.</span><span class="n">seq</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="n">assert_equal</span><span class="p">(</span><span class="n">this</span><span class="o">.</span><span class="n">seq</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span>
+
+        <span class="c"># should raise an exception for an immutable TestSequenceFunctions.sequence</span>
+        <span class="n">assert_raises</span><span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
+
+    <span class="nd">@test</span>
+    <span class="k">def</span> <span class="nf">test_choice</span><span class="p">():</span>
+        <span class="n">element</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">this</span><span class="o">.</span><span class="n">seq</span><span class="p">)</span>
+        <span class="n">assert_true</span><span class="p">(</span><span class="n">element</span> <span class="ow">in</span> <span class="n">this</span><span class="o">.</span><span class="n">seq</span><span class="p">)</span>
+
+    <span class="nd">@test</span>
+    <span class="k">def</span> <span class="nf">test_sample</span><span class="p">():</span>
+        <span class="n">assert_raises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">,</span> <span class="n">this</span><span class="o">.</span><span class="n">seq</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">this</span><span class="o">.</span><span class="n">seq</span><span class="p">,</span> <span class="mi">5</span><span class="p">):</span>
+            <span class="n">assert_in</span><span class="p">(</span><span class="n">element</span><span class="p">,</span><span class="n">this</span><span class="o">.</span><span class="n">seq</span><span class="p">)</span>
+</pre></div>
+
+<h2>Contact Me</h2>
+
+<p>If you have any questions or comments, find any bugs, or wish to make any feature requests, shoot me an email at <a href="mailto:pyinq.test@gmail.com">pyinq.test@gmail.com</a>. I am especially hoping to receive bug reports, for although I am unaware of any bugs, fresh sets of eyes have a better chance of finding what I missed.</p>
+
+<p>Also, I will be setting up a separate web page and public GitHub repo for this project very soon. I will post those links here once they are ready.</p>
+      </section>
+      <footer>
+        <p><small>Hosted on <a href="https://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
+      </footer>
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><!--<![endif]-->
+		
+  </body>
+</html>
