@@ -14,4 +14,13 @@ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
 THIS SOFTWARE.
 """
 
-from pyinq.printers.cli.bash.bash import Printer
+"""
+This is included to allow for test discovery from the command line
+"""
+from pyinq.parsers import install_command_parser,get_args,Parsers
+from pyinq._pyinq import discover_tests_cmd
+
+install_command_parser(prog=__package__)
+args,name = get_args()
+if name==Parsers.DISCOVERY:
+    discover_tests_cmd(**args)

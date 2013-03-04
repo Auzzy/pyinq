@@ -1,12 +1,27 @@
+"""
+Copyright (c) 2012, Austin Noto-Moniz (metalnut4@netscape.net)
+
+Permission to use, copy, modify, and/or distribute this software for any purpose
+with or without fee is hereby granted, provided that the above copyright notice
+and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
+FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
+OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
+TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
+THIS SOFTWARE.
+"""
+
 from pyinq.tags import _tags
 
 def get_suite(suite=None):
-    _tags.cleanup()
+    _tags.build_suite(suite)
     return _tags.get_suite(suite)
 
-def get_module():
-    _tags.cleanup()
-    return _tags.get_module()
+def finish_module(name):
+    _tags.finish_module(name)
 
 ##### FIXTURES #####
 
@@ -58,7 +73,11 @@ AfterSuite = afterSuite
 ##### TESTS #####
 
 def test(func=None, **kwargs):
-    expected = kwargs["expected"] if "expected" in kwargs else None
+    expected = kwargs["expect"] if "expect" in kwargs else None
+    
+    # DEPRECATED
+    expected = kwargs["expected"] if not expected and "expected" in kwargs else expected
+    
     suite = kwargs["suite"] if "suite" in kwargs else None
 
     if func is None:

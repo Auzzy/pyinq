@@ -1,38 +1,52 @@
-import atexit
-from argparse import ArgumentParser,FileType
+"""
+Copyright (c) 2012, Austin Noto-Moniz (metalnut4@netscape.net)
 
+Permission to use, copy, modify, and/or distribute this software for any purpose
+with or without fee is hereby granted, provided that the above copyright notice
+and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
+FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
+OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
+TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
+THIS SOFTWARE.
+"""
+
+import pyinq._atexit as atexit
 from pyinq import printers,tags
+from pyinq._discover import discover_tests as _discover_tests
+from pyinq.parsers import install_main_parser,get_args
 
+_discovery_enabled = True
 
-parser = ArgumentParser()
-parser.add_argument("--html",nargs='?',type=FileType('w'),default=False,
-        help="Where to place the HTML test report " + \
-        "(default: None (outputs to standard out))")
-parser.add_argument("--suite",default=None,
-        help="The suite to run. If not provided, all tests are run.")
+def discover_tests_api(root, pattern=".*", suite_name=None):
+    if _discovery_enabled:
+        atexit.unregister(_run_at_exit)
+        return _discover_tests(root,pattern,suite_name)
 
-def get_args():
-    args = parser.parse_args()
+def discover_tests_cmd(root, pattern=".*", **args):
+    if _discovery_enabled:
+        atexit.unregister(_run_at_exit)
+        _discover_tests(root,pattern,args["suite"])
+        run_all(args)
 
-    html = args.html
-    if html is None:
-        from os.path import basename,splitext
-        test_filename = splitext(basename(parser.prog))[0]
-        html_filename = "{0}_output.html".format(test_filename)
-        html = open(html_filename,'w')
+def _run_at_exit():
+    args,name = get_args()
+    if args:
+        run_all(args)
 
-    suite = args.suite
+def run_all(args):
+    kwargs = {"html":args["html"]}
 
-    return suite,html
+    suite = tags.get_suite(args["suite"])
+    
+    if suite:
+        report = suite()
 
-def run_all():
-    suite_name,html = get_args()
-    kwargs = {"html":html}
+        printer = printers.html if args["html"] else printers.cli
+        printers.print_report(report,printer,**kwargs)
 
-    suite = tags.get_suite(suite_name)
-    report = suite()
-
-    printer = printers.html if html else printers.cli
-    printers.print_report(report,printer,**kwargs)
-
-atexit.register(run_all)
+install_main_parser()
+atexit.register(_run_at_exit)

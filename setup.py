@@ -2,13 +2,13 @@ from distutils.core import setup
 
 setup(
     name='PyInq',
-    version='0.1.1',
+    version='0.2.0',
     author='Austin Noto-Moniz',
     author_email='metalnut4@netscape.net',
     url='http://pypi.python.org/pypi/PyInq',
     packages=['pyinq','pyinq.asserts','pyinq.tags','pyinq.printers','pyinq.printers.html','pyinq.printers.cli','pyinq.printers.cli.console','pyinq.printers.cli.bash'],
     description='Python unit test framework, an alternative to unittest.',
-    long_description=open('README').read(),
+    long_description=open('README.txt').read(),
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Environment :: Console',

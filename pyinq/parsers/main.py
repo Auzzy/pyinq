@@ -14,41 +14,32 @@ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
 THIS SOFTWARE.
 """
 
-import atexit
+from os.path import basename,splitext
+
 from argparse import ArgumentParser,FileType
 
-from pyinq import printers,tags
+NAME = "__main__"
+_prog = None
 
+def compose(parser=None, **kwargs):
+    global _prog
 
-parser = ArgumentParser()
-parser.add_argument("--html",nargs='?',type=FileType('w'),default=False,
-        help="Where to place the HTML test report " + \
-        "(default: None (outputs to standard out))")
-parser.add_argument("--suite",default=None,
-        help="The suite to run. If not provided, all tests are run.")
+    if not parser:
+        parser = ArgumentParser(**kwargs)
+    parser.add_argument("--html",nargs='?',type=FileType('w'),default=False,
+            help="Where to place the HTML test report (default: stdout)")
+    parser.add_argument("--suite",default=None,
+            help="The suite to run. If not provided, all tests are run.")
+    
+    _prog = parser.prog
+    
+    return parser
 
-def get_args():
-    args = parser.parse_args()
-
+def get_args(args):
     html = args.html
     if html is None:
-        from os.path import basename,splitext
-        test_filename = splitext(basename(parser.prog))[0]
+        test_filename = splitext(basename(_prog))[0] if _prog else "report.html"
         html_filename = "{0}_output.html".format(test_filename)
         html = open(html_filename,'w')
-
-    suite = args.suite
-
-    return suite,html
-
-def run_all():
-    suite_name,html = get_args()
-    kwargs = {"html":html}
-
-    suite = tags.get_suite(suite_name)
-    report = suite()
-
-    printer = printers.html if html else printers.cli
-    printers.print_report(report,printer,**kwargs)
-
-atexit.register(run_all)
+    
+    return {"html":html, "suite":args.suite}

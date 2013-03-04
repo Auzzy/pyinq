@@ -1,3 +1,4 @@
+
 =====
 PyInq
 =====
@@ -10,10 +11,11 @@ Differences From PyUnit (unittest)
 ----------------------------------
 * Test identification by decorators
 * Module level tests
-* Simplified suite creation and execution
+* Suite support
+	* Simplified creation and execution
 	* No calling or invoking a test runner
 	* Create suites with a single keyword argument, not a separate object
-* Eval functions
+* Eval functions (passive asserts)
 * Detailed, color coded output
 	* For each test, prints the result of each assert and eval statement
 	* Color coded based on result
@@ -32,7 +34,6 @@ Other Notable Features
 
 Coming soon
 -----------
-* Test discovery
 * Context manager for assertRaises
 * Command-line single test case/class execution
 * Multi-suite tests
@@ -45,9 +46,11 @@ I have not yet had the chance to write up much documentation. It's high on my TO
 
 For now, there is basic documentation in the download. In the docs folder, there is a file called "reference.txt". This assumes knowledge of unit test frameworks, and serves as a basic reference for what PyInq includes, and how to use it. The other is a directory called examples, which contains a number of tests that exercise various aspects of PyInq. I've tried to name them in a straightforward manner to enable them to giude your usage of this package.
 
+Additionally, I've included a section on test discovery and some basic examples below.
 
+##############
 Basic Examples
---------------
+##############
 Simply run the code as is to try any of these examples for youself
 
 A single module level test::
@@ -121,8 +124,28 @@ unittest basic example::
 			for element in random.sample(this.seq, 5):
 				assert_in(element,this.seq)
 
+##############
+Test Discovery
+##############
+Test discovery is a method for finding tests beginning at a specific root folder. The program will walk down each Python package in the folder structure until it has nowhere else to go. If any files in the package contain PyInq tests, they will be properly detected and executed.
+
+The main way to use it is invocation from the command line, like so::
+
+	python -m pyinq discovery <root>
+
+Output is the same as when executing a single file, with the addition of a tag indicating which module a set of tests belongs to.
+
+You may also choose to invoke test discovery via the API. If you do, you will be given a TestSuite object, which is executable. A sample of how to use it appears below::
+
+	from pyinq import discover_tests
+	
+	suite = discover_tests('examples')
+	if suite:
+		suite()
+
+
 Contact Me
 ----------
-If you have any questions or comments, find any bugs, or wish to make any feature requests, shoot me an email at `pyinq.test@gmail.com<mailto:pyinq.test@gmail.com>`_. I am especially hoping to receive bug reports, for although I am unaware of any bugs, fresh sets of eyes have a better chance of finding what I missed.
+If you have any questions or comments, find any bugs, or wish to make any feature requests, shoot me an email at pyinq.test@gmail.com. I am especially hoping to receive bug reports, for although I am unaware of any bugs, fresh sets of eyes have a better chance of finding what I missed.
 
 Also, I will be setting up a separate web page and public GitHub repo for this project very soon. I will post those links here once they are ready.

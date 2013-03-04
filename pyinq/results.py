@@ -1,10 +1,27 @@
-class TestResult(list):
+"""
+Copyright (c) 2012, Austin Noto-Moniz (metalnut4@netscape.net)
+
+Permission to use, copy, modify, and/or distribute this software for any purpose
+with or without fee is hereby granted, provided that the above copyright notice
+and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
+FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
+OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
+TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
+THIS SOFTWARE.
+"""
+
+class TestStructResult(list):
     def __init__(self, name):
-        super(TestResult,self).__init__()
+        super(TestStructResult,self).__init__()
         self.name = name
         self.before = None
         self.after = None
     
+class TestResult(TestStructResult):
     def get_status(self):
         for test in self:
             if test.result is None:
@@ -13,23 +30,23 @@ class TestResult(list):
                 return False
         return True
 
-    def __str__(self):
-        item_strs = []
+class TestContainerResult(TestStructResult):
+    def get_status(self):
         for result in self:
-            if isinstance(result,list):
-                item_strs.append(str(result))
-            else:
-                item_strs.append(repr(result))
-        items = ", ".join(item_strs)
-        return "{0}([{1}])".format(self.__class__.__name__,items)
+            status = result.get_status()
+            if status is None:
+                return None
+            elif not status:
+                return False
+        return True
 
-class TestClassResult(TestResult):
+class TestClassResult(TestContainerResult):
     pass
 
-class TestModuleResult(TestResult):
+class TestModuleResult(TestContainerResult):
     pass
 
-class TestSuiteResult(TestResult):
+class TestSuiteResult(TestContainerResult):
     pass
 
 
@@ -75,12 +92,12 @@ class PyInqAssertInstanceError(PyInqAssertError):
         return AssertInstanceResult(self.lineno,self.call,False,self.obj,self.cls)
 
 class PyInqAssertRaisesError(PyInqAssertError):
-    def __init__(self, lineno, call, expected):
+    def __init__(self, lineno, call, trace, expected):
         super(PyInqAssertRaisesError,self).__init__(lineno,call)
         self.expected = expected
 
     def result(self):
-        return AssertRaisesResult(self.lineno,self.call,"",self.expected)
+        return AssertRaisesResult(self.lineno,self.call,False,"",self.expected)
 
 class PyInqFailError(PyInqError):
     def __init__(self, lineno, mess):
@@ -152,8 +169,8 @@ class AssertInstanceResult(AssertResult):
                     args=(self.class_name,self.obj_name))
 
 class AssertRaisesResult(AssertResult):
-    def __init__(self, lineno, call, trace, expected):
-        super(AssertRaisesResult,self).__init__(lineno,call,bool(trace))
+    def __init__(self, lineno, call, result, trace, expected):
+        super(AssertRaisesResult,self).__init__(lineno,call,result)
         self.expected = expected.__name__
         trace_lines = ["    {0}".format(line) for line in trace.splitlines()]
         self.trace = '\n'.join(trace_lines)
@@ -168,7 +185,7 @@ class AssertRaisesResult(AssertResult):
                         args=(self.expected,))
 
 class ExpectedErrorResult(AssertResult):
-    def __init__(self, expected, result, lineno=-1):
+    def __init__(self, result, expected, lineno=None):
         super(ExpectedErrorResult,self).__init__(lineno,None,result)
         self.expected = expected.__name__
     
