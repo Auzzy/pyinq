@@ -1,0 +1,222 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pyinq.asserts &mdash; PyInq 0.1.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="author" title="About these documents" href="about.html" />
+    <link rel="top" title="PyInq 0.1.1 documentation" href="index.html" />
+    <link rel="up" title="Reference" href="reference.html" />
+    <link rel="next" title="&lt;no title&gt;" href="printers.html" />
+    <link rel="prev" title="pyinq.tags" href="tags.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="printers.html" title="&lt;no title&gt;"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="tags.html" title="pyinq.tags"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyInq 0.1.1 documentation</a> &raquo;</li>
+          <li><a href="reference.html" accesskey="U">Reference</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="pyinq-asserts">
+<h1>pyinq.asserts<a class="headerlink" href="#pyinq-asserts" title="Permalink to this headline">¶</a></h1>
+<p>Assert functions are provided by PyInq to allow the writer to evaluate the program state as needed. These functions are special, as they report their result back to the framework, which then logs the result appropriately.</p>
+<p>PyInq provides 2 flavors of assert statements: traditional assert functions, pre-fixed with &#8220;assert&#8221;; and passive eval functions, pre-fixed with &#8220;eval&#8221;. The difference between them lies in their handling of a test failure. If an assert function fails, the test ends immedaitely, any test cleanup fixtures are run, and the next test begins. If an eval function fails, the result is simply logged, and execution continues.</p>
+<p>This suggests 2 very different uses of these functions. Asserts are for testing state that could cause unexpected behavior if it is wrong. Evals are best used to check field and variable values that need to be correct, but will not interrupt execution if they&#8217;re wrong. This allows for more efficient bug fixes, as multiple minor bugs can be caught and fixed simultaneously.</p>
+<div class="section" id="asserts-evals">
+<h2>Asserts/Evals<a class="headerlink" href="#asserts-evals" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="assert_true">
+<tt class="descname">assert_true</tt><big>(</big><em>expr</em><big>)</big><a class="headerlink" href="#assert_true" title="Permalink to this definition">¶</a></dt>
+<dt id="assert_false">
+<tt class="descname">assert_false</tt><big>(</big><em>expr</em><big>)</big><a class="headerlink" href="#assert_false" title="Permalink to this definition">¶</a></dt>
+<dt id="eval_true">
+<tt class="descname">eval_true</tt><big>(</big><em>expr</em><big>)</big><a class="headerlink" href="#eval_true" title="Permalink to this definition">¶</a></dt>
+<dt id="eval_false">
+<tt class="descname">eval_false</tt><big>(</big><em>expr</em><big>)</big><a class="headerlink" href="#eval_false" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluates the truth value of expr.
+Note that the truth value is <em>not</em> the same as expr==True. For that operation, use either assert_equal(expr,True) or assert_is(expr,True).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="assert_none">
+<tt class="descname">assert_none</tt><big>(</big><em>expr</em><big>)</big><a class="headerlink" href="#assert_none" title="Permalink to this definition">¶</a></dt>
+<dt id="assert_not_none">
+<tt class="descname">assert_not_none</tt><big>(</big><em>expr</em><big>)</big><a class="headerlink" href="#assert_not_none" title="Permalink to this definition">¶</a></dt>
+<dt id="eval_none">
+<tt class="descname">eval_none</tt><big>(</big><em>expr</em><big>)</big><a class="headerlink" href="#eval_none" title="Permalink to this definition">¶</a></dt>
+<dt id="eval_not_none">
+<tt class="descname">eval_not_none</tt><big>(</big><em>expr</em><big>)</big><a class="headerlink" href="#eval_not_none" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evalutes whether or not expr is None.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="assert_equal">
+<tt class="descname">assert_equal</tt><big>(</big><em>actual</em>, <em>expected</em><big>)</big><a class="headerlink" href="#assert_equal" title="Permalink to this definition">¶</a></dt>
+<dt id="assert_not_equal">
+<tt class="descname">assert_not_equal</tt><big>(</big><em>actual</em>, <em>expected</em><big>)</big><a class="headerlink" href="#assert_not_equal" title="Permalink to this definition">¶</a></dt>
+<dt id="eval_equal">
+<tt class="descname">eval_equal</tt><big>(</big><em>actual</em>, <em>expected</em><big>)</big><a class="headerlink" href="#eval_equal" title="Permalink to this definition">¶</a></dt>
+<dt id="eval_not_equal">
+<tt class="descname">eval_not_equal</tt><big>(</big><em>actual</em>, <em>expected</em><big>)</big><a class="headerlink" href="#eval_not_equal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test the equivalence of actual and expected. Although not enforced, actual should be the result of the expression under test and expected should be the passing value. Equivalence is determined by the == and != operators (equality by value).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="assert_is">
+<tt class="descname">assert_is</tt><big>(</big><em>actual</em>, <em>expected</em><big>)</big><a class="headerlink" href="#assert_is" title="Permalink to this definition">¶</a></dt>
+<dt id="assert_is_not">
+<tt class="descname">assert_is_not</tt><big>(</big><em>actual</em>, <em>expected</em><big>)</big><a class="headerlink" href="#assert_is_not" title="Permalink to this definition">¶</a></dt>
+<dt id="eval_is">
+<tt class="descname">eval_is</tt><big>(</big><em>actual</em>, <em>expected</em><big>)</big><a class="headerlink" href="#eval_is" title="Permalink to this definition">¶</a></dt>
+<dt id="eval_is_not">
+<tt class="descname">eval_is_not</tt><big>(</big><em>actual</em>, <em>expected</em><big>)</big><a class="headerlink" href="#eval_is_not" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests whether actual and expected are the same object as determined by the is operator (equality by reference).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="assert_in">
+<tt class="descname">assert_in</tt><big>(</big><em>item</em>, <em>container</em><big>)</big><a class="headerlink" href="#assert_in" title="Permalink to this definition">¶</a></dt>
+<dt id="assert_not_in">
+<tt class="descname">assert_not_in</tt><big>(</big><em>item</em>, <em>container</em><big>)</big><a class="headerlink" href="#assert_not_in" title="Permalink to this definition">¶</a></dt>
+<dt id="eval_in">
+<tt class="descname">eval_in</tt><big>(</big><em>item</em>, <em>container</em><big>)</big><a class="headerlink" href="#eval_in" title="Permalink to this definition">¶</a></dt>
+<dt id="eval_not_in">
+<tt class="descname">eval_not_in</tt><big>(</big><em>item</em>, <em>container</em><big>)</big><a class="headerlink" href="#eval_not_in" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests for membership of item in container.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="assert_is_instance">
+<tt class="descname">assert_is_instance</tt><big>(</big><em>obj</em>, <em>cls</em><big>)</big><a class="headerlink" href="#assert_is_instance" title="Permalink to this definition">¶</a></dt>
+<dt id="assert_is_not_instance">
+<tt class="descname">assert_is_not_instance</tt><big>(</big><em>obj</em>, <em>cls</em><big>)</big><a class="headerlink" href="#assert_is_not_instance" title="Permalink to this definition">¶</a></dt>
+<dt id="eval_is_instance">
+<tt class="descname">eval_is_instance</tt><big>(</big><em>obj</em>, <em>cls</em><big>)</big><a class="headerlink" href="#eval_is_instance" title="Permalink to this definition">¶</a></dt>
+<dt id="eval_is_not_instance">
+<tt class="descname">eval_is_not_instance</tt><big>(</big><em>obj</em>, <em>cls</em><big>)</big><a class="headerlink" href="#eval_is_not_instance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests whether obj is an instance of cls. Just as with isinstance, cls can be a tuple of classes.</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<tt class="descname">assert_raises(exception, func, *args, **kwargs):</tt></dt>
+<dt>
+<tt class="descname">eval_raises(exception, func, *args, **kwargs):</tt></dt>
+<dd><p>Executes func with the provided args and kwargs, and ensures that an exception of the provided type is raised. If an exception is raised of a different type, then the test will result in an error. If no exception occurs, the test fails.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="fail">
+<h2>Fail<a class="headerlink" href="#fail" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt>
+<tt class="descname">fail</tt><big>(</big><em>mess</em><big>)</big></dt>
+<dd><p>Unconditionally causes the test to fail and exit, and prints the given message.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">pyinq.asserts</a><ul>
+<li><a class="reference internal" href="#asserts-evals">Asserts/Evals</a></li>
+<li><a class="reference internal" href="#fail">Fail</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="tags.html"
+                        title="previous chapter">pyinq.tags</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="printers.html"
+                        title="next chapter">&lt;no title&gt;</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/asserts.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="printers.html" title="&lt;no title&gt;"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="tags.html" title="pyinq.tags"
+             >previous</a> |</li>
+        <li><a href="index.html">PyInq 0.1.1 documentation</a> &raquo;</li>
+          <li><a href="reference.html" >Reference</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Austin Noto-Moniz.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

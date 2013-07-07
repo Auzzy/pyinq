@@ -1,0 +1,240 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>3. Getting Started &mdash; PyInq 0.1.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="author" title="About these documents" href="about.html" />
+    <link rel="top" title="PyInq 0.1.1 documentation" href="index.html" />
+    <link rel="up" title="Introduction" href="introduction.html" />
+    <link rel="next" title="4. Writing Better Tests" href="bettertests.html" />
+    <link rel="prev" title="2. What is unit testing?" href="unittesting.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="bettertests.html" title="4. Writing Better Tests"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="unittesting.html" title="2. What is unit testing?"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyInq 0.1.1 documentation</a> &raquo;</li>
+          <li><a href="introduction.html" accesskey="U">Introduction</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="getting-started">
+<h1>3. Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
+<p>Any module that imports from the pyinq package is treated as a PyInq test module upon load. Thus, upon running the module, all tests in the file will be picked up and executed according to the command line options provided.</p>
+<div class="section" id="your-first-test">
+<h2>3.1. Your First Test<a class="headerlink" href="#your-first-test" title="Permalink to this headline">¶</a></h2>
+<p>Writting a test is very simple. In PyInq, a test is just a function that is decorated with the <tt class="docutils literal"><span class="pre">&#64;test</span></tt> tag:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyinq.tags</span> <span class="kn">import</span> <span class="n">test</span>
+
+<span class="nd">@test</span>
+<span class="k">def</span> <span class="nf">my_first_test</span><span class="p">():</span>
+        <span class="k">pass</span>
+</pre></div>
+</div>
+<p>Note that the test function does not have any parameters. A PyInq test must not take any parameters.</p>
+<p>PyInq includes a number of tags for different operations, all of which are included in <tt class="xref py py-mod docutils literal"><span class="pre">pyinq.tags</span></tt>.</p>
+</div>
+<div class="section" id="writing-useful-tests">
+<h2>3.2. Writing Useful Tests<a class="headerlink" href="#writing-useful-tests" title="Permalink to this headline">¶</a></h2>
+<p>If you run the above test, you&#8217;ll notice it doesn&#8217;t actually do anything. Some output is produced, including a report on <tt class="xref py py-func docutils literal"><span class="pre">my_first_test()</span></tt> which informs you it contains no asserts. While this isn&#8217;t a problem for PyInq, it probably isn&#8217;t what you wanted. You probably wanted to run some of your code, then check that the correct values were affected. You wanted assert functions!</p>
+<div class="section" id="assert-functions">
+<h3>Assert Functions<a class="headerlink" href="#assert-functions" title="Permalink to this headline">¶</a></h3>
+<p>To begin, let&#8217;s add an assert!:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyinq.tags</span> <span class="kn">import</span> <span class="n">test</span>
+<span class="kn">from</span> <span class="nn">pyinq.asserts</span> <span class="kn">import</span> <span class="n">assert_true</span>
+
+<span class="nd">@test</span>
+<span class="k">def</span> <span class="nf">single_assert</span><span class="p">():</span>
+        <span class="n">assert_true</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The above is a use of the most basic assert function. Its only argument is a Python expression. If the expression has a truth value of <tt class="xref py py-const docutils literal"><span class="pre">True</span></tt>, it passes; otherwise, it fails. Since its argument is the boolean value <tt class="xref py py-const docutils literal"><span class="pre">True</span></tt>, the above test will pass.</p>
+<p>Upon execution, you will see a brief report on this test, including a status indicating it passed. This is because all asserts in the test passed. If a single assert fails, the test fails. Additionally, for each assert you will see a line indicating its success, as in the following example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyinq.tags</span> <span class="kn">import</span> <span class="n">test</span>
+<span class="kn">from</span> <span class="nn">pyinq.asserts</span> <span class="kn">import</span> <span class="n">assert_true</span><span class="p">,</span><span class="n">assert_false</span>
+
+<span class="nd">@test</span>
+<span class="k">def</span> <span class="nf">two_asserts</span><span class="p">():</span>
+        <span class="n">assert_true</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">assert_false</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Both tests pass, so the test itself passes. Also, we once again see a line for each assert function call in test report.</p>
+<p>All assert fucntions are included in the <tt class="xref py py-mod docutils literal"><span class="pre">pyinq.asserts</span></tt> package.</p>
+</div>
+<div class="section" id="test-contents">
+<h3>Test Contents<a class="headerlink" href="#test-contents" title="Permalink to this headline">¶</a></h3>
+<p>Clearly, the examples so far have been incredibly simple, and if you are unfamiliar with unit testing, they may have left you wondering what the point is. So before I go any further, let me give you a more realistic (albeit simple) example using a function built in to Python:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">from</span> <span class="nn">pyinq.tags</span> <span class="kn">import</span> <span class="n">test</span>
+<span class="kn">from</span> <span class="nn">pyinq.asserts</span> <span class="kn">import</span> <span class="n">assert_in</span><span class="p">,</span><span class="n">assert_equal</span><span class="p">,</span><span class="n">assert_not_equal</span>
+
+<span class="nd">@test</span>
+<span class="k">def</span> <span class="nf">shuffle_test</span><span class="p">():</span>
+        <span class="n">seq</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">10</span><span class="p">)</span>
+        <span class="n">shuffled</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span>
+        <span class="n">assert_not_equal</span><span class="p">(</span><span class="n">seq</span><span class="p">,</span><span class="n">shuffled</span><span class="p">)</span>
+        <span class="n">assert_equal</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">seq</span><span class="p">),</span><span class="nb">len</span><span class="p">(</span><span class="n">suffled</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">shuffled</span><span class="p">:</span>
+                <span class="n">assert_in</span><span class="p">(</span><span class="n">item</span><span class="p">,</span><span class="n">seq</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In the above test, the <tt class="xref py py-func docutils literal"><span class="pre">random.shuffle()</span></tt> function is being tested. If the sequence is shuffled, then it should not be equal to the original sequence, although their lengths should be equivalent. Additionally, all items in the shuffled sequence should be present in the original sequence. This guarantees the shuffled sequence has the exact same contents as the original sequence (no more and no less), but they do not appear in the same order.</p>
+</div>
+<div class="section" id="assert-failure">
+<h3>Assert Failure<a class="headerlink" href="#assert-failure" title="Permalink to this headline">¶</a></h3>
+<p>All of the previous examples are set up such that the asserts will indeed pass. But what happens when an assert fails?:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyinq.tags</span> <span class="kn">import</span> <span class="n">test</span>
+<span class="kn">from</span> <span class="nn">pyinq.asserts</span> <span class="kn">import</span> <span class="n">assert_true</span>
+
+<span class="nd">@test</span>
+<span class="k">def</span> <span class="nf">failing_assert</span><span class="p">():</span>
+        <span class="n">assert_true</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The test status is reported as failed, and the assert function call is also reported as failed. Given the behavior when an assert passes, this is not surprising.</p>
+<p>But what if a test contains multiple asserts?:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyinq.tags</span> <span class="kn">import</span> <span class="n">test</span>
+<span class="kn">from</span> <span class="nn">pyinq.asserts</span> <span class="kn">import</span> <span class="n">assert_true</span>
+
+<span class="nd">@test</span>
+<span class="k">def</span> <span class="nf">asserts_failing</span><span class="p">():</span>
+        <span class="n">assert_true</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+        <span class="n">assert_true</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note that only the first assert statement is listed in the report. The second assert&#8217;s output is not displayed. This is because the second assert <em>is not executed</em>. This exposes a key feature of assert statements; a failed assert causes the current test to halt. This can be an incredibly useful detail. It means that following an assert, you may assume that expression is true until an object in the expression is modified. If the condition wasn&#8217;t true, then the test would have ended.</p>
+<p>For example, in the following test it is first asserted that the variable <tt class="xref py py-data docutils literal"><span class="pre">foo</span></tt> is a string, then that it contains only alphabetic characters. After the first assert, there is no need to check that <tt class="xref py py-data docutils literal"><span class="pre">foo</span></tt> is a string. Since the test is still running, and <tt class="xref py py-data docutils literal"><span class="pre">foo</span></tt> hasn&#8217;t been modified, foo must be a string, so we can safely operate on it as such:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyinq.tags</span> <span class="kn">import</span> <span class="n">test</span>
+<span class="kn">from</span> <span class="nn">pyinq.asserts</span> <span class="kn">import</span> <span class="n">assert_true</span><span class="p">,</span><span class="n">assert_is_instance</span>
+
+<span class="nd">@test</span>
+<span class="k">def</span> <span class="nf">test_assert</span><span class="p">():</span>
+        <span class="n">foo</span> <span class="o">=</span> <span class="s">&quot;hello&quot;</span>
+        <span class="n">assert_is_instance</span><span class="p">(</span><span class="n">foo</span><span class="p">,</span><span class="nb">str</span><span class="p">)</span>
+        <span class="n">assert_true</span><span class="p">(</span><span class="n">foo</span><span class="o">.</span><span class="n">isalpha</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="errors">
+<h3>Errors<a class="headerlink" href="#errors" title="Permalink to this headline">¶</a></h3>
+<p>Sometimes you will execute code which will raise an error. It may be unexepected, such as errors caused by an issue during file I/O. They may be expected, such as with a StopIteration error. But either way, errors will occur, and PyInq must deal with it.</p>
+<p>When an error is raised, PyInq first checks if that error was expected (this will be discussed in detail in <a class="reference internal" href="bettertests.html#better-tests"><em>Writing Better Tests</em></a>). If so, it will be handled in the appropriate manner. If it is unexpected, PyInq will log the error (including traceback) and halt the test. This way, the test will not produce any false results by attempting to continue, and all the information about the error is available to you for correction. A test which terminated due to an error will be be given a status indicating as much.</p>
+</div>
+</div>
+<div class="section" id="what-else">
+<h2>3.3. What Else?<a class="headerlink" href="#what-else" title="Permalink to this headline">¶</a></h2>
+<p>That covers all the basics of unit testing. You could do all of your testing using just what you&#8217;ve learned in this short document.</p>
+<p>But that would be silly! For all but the smallest projects, your tests would quickly get large and unmanageable, full of redundant and verbose code. Luckily, PyInq provides you with many more features to ease your coding and clean up your tests. Check out the <a class="reference internal" href="bettertests.html#better-tests"><em>Writing Better Tests</em></a> guide for a walkthrough of PyInq&#8217;s more advanced features.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">3. Getting Started</a><ul>
+<li><a class="reference internal" href="#your-first-test">3.1. Your First Test</a></li>
+<li><a class="reference internal" href="#writing-useful-tests">3.2. Writing Useful Tests</a><ul>
+<li><a class="reference internal" href="#assert-functions">Assert Functions</a></li>
+<li><a class="reference internal" href="#test-contents">Test Contents</a></li>
+<li><a class="reference internal" href="#assert-failure">Assert Failure</a></li>
+<li><a class="reference internal" href="#errors">Errors</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#what-else">3.3. What Else?</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="unittesting.html"
+                        title="previous chapter">2. What is unit testing?</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="bettertests.html"
+                        title="next chapter">4. Writing Better Tests</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/gettingstarted.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="bettertests.html" title="4. Writing Better Tests"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="unittesting.html" title="2. What is unit testing?"
+             >previous</a> |</li>
+        <li><a href="index.html">PyInq 0.1.1 documentation</a> &raquo;</li>
+          <li><a href="introduction.html" >Introduction</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Austin Noto-Moniz.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
