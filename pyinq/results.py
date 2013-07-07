@@ -95,6 +95,7 @@ class PyInqAssertRaisesError(PyInqAssertError):
     def __init__(self, lineno, call, trace, expected):
         super(PyInqAssertRaisesError,self).__init__(lineno,call)
         self.expected = expected
+	self.trace = trace
 
     def result(self):
         return AssertRaisesResult(self.lineno,self.call,False,"",self.expected)
