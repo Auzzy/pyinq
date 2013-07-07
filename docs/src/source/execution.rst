@@ -1,0 +1,36 @@
+.. _execution:
+
+Running PyInq
+=============
+
+One of PyInq's primary goals is to make test execution simple. To this end, execution is kept unintrusive and natural, and also provides you with  options for more control (with even more options on the way).
+
+Running a Single Module
+-----------------------
+
+Some command line arguments are added to each test module at runtime to allow greater control over execution::
+
+        python foo.py [--html [HTML]] [--suite SUITE]
+
+Run without any arguments, all tests found in the module are executed, and the report is printed (in color, if possible) to stdout.
+
+The ``html`` argument has 2 forms. If it is present without an argument, then the output is an HTML file named "{module}_output.html". If given an argument, that will be the name of the output file.
+
+The ``suite`` argument causes only tests in the named suite to be executed. If a test suite either cannot be found or is empty, no tests will be run.
+
+.. _execute_discovery:
+
+Test Discovery
+--------------
+
+See :ref:`discovery` for details on how test discovery works. This section will only talk about command line options for execution.
+
+::
+
+        python -m pyinq discover [-p PATTERN] [--html [HTML]] [--suite SUITE] root
+
+The only required argument for test discovery is ``root``, which indicates the path at which to begin test discovery.
+
+Providing a ``pattern`` filters modules based on name, *not path* . This argument must be a valid Python regular expression.
+
+``html`` and ``suite`` function exactly the same as when running a single module.
