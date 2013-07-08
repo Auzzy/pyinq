@@ -1,0 +1,37 @@
+.section
+{
+	font-size:24px;
+	font-weight:bold;
+}
+.testname
+{
+	font-size:20px;
+	font-weight:bold;
+	margin:0px;
+}
+.test
+{
+	margin:0px;
+}
+.status
+{
+	font-weight:bold;
+	margin:0px;
+}
+.result
+{
+	margin:0px;
+	white-space: pre-wrap;
+}
+.passed
+{
+	color:#00FF00;
+}
+.failed
+{
+	color:#FF0000;
+}
+.error
+{
+	color:#0000FF;
+}

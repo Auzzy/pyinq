@@ -1,0 +1,4 @@
+.. _discovery:
+
+Test Discovery
+==============

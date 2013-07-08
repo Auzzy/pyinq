@@ -1,0 +1,517 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>1. Writing Better Tests &mdash; PyInq 0.2.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.2.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="author" title="About these documents" href="about.html" />
+    <link rel="top" title="PyInq 0.2.0 documentation" href="index.html" />
+    <link rel="up" title="Advanced" href="advanced.html" />
+    <link rel="next" title="2. Test Discovery" href="discovery.html" />
+    <link rel="prev" title="Advanced" href="advanced.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="discovery.html" title="2. Test Discovery"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="advanced.html" title="Advanced"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyInq 0.2.0 documentation</a> &raquo;</li>
+          <li><a href="advanced.html" accesskey="U">Advanced</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="writing-better-tests">
+<span id="better-tests"></span><h1>1. Writing Better Tests<a class="headerlink" href="#writing-better-tests" title="Permalink to this headline">¶</a></h1>
+<p>All that&#8217;s <em>necessary</em> for a unit test is a test function and assert statements. However, this will quickly lead to large, cumbersome, hard to maintain tests with a high rate of redundancy. In order for a framework to be useful, it must provide you with features that make your life easier. So although these advanced features ae not required, it is recommended that you familiarize yourself with them in order to allow yourself to write more robust tests.</p>
+<div class="section" id="eval-functions">
+<h2>1.1. Eval Functions<a class="headerlink" href="#eval-functions" title="Permalink to this headline">¶</a></h2>
+<p>As useful as it is for the first assert failure to cause a test to exit, this is not always the desired behavior. Sometimes you are evaluating less critical pieces of program state. While you have an expectation for these values, an incorrect value will not lead to a problem in other parts of the program. Thus, you&#8217;d like to see these incorrect values, but only halt if a critical value is wrong.</p>
+<p>For this, PyInq has eval functions. Evals are passive asserts. Their names and operation correspond to assert statements, but they do <em>not</em> cause the current test to halt on failure.</p>
+<p>Take this example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyinq.tags</span> <span class="kn">import</span> <span class="n">test</span>
+<span class="kn">from</span> <span class="nn">pyinq.asserts</span> <span class="kn">import</span> <span class="n">eval_true</span>
+
+<span class="nd">@test</span>
+<span class="k">def</span> <span class="nf">evals_failing</span><span class="p">():</span>
+        <span class="n">eval_true</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+        <span class="n">eval_true</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The first eval will fail, since it is expecting <tt class="xref py py-const docutils literal"><span class="pre">True</span></tt>. However, because it is an eval, this failure will simply be logged, and the test will continue. In this case, the second eval is run, which evaluates to <tt class="xref py py-const docutils literal"><span class="pre">True</span></tt>. The test itself failed, as not all evals passed, but the second eval is still executed.</p>
+<p>BE VERY CAREFUL WHEN USING EVALS. Since a failed eval does not halt execution, you should not use them to check critical values in the program. Doing so could cause unexpected program state, and obscure the true cause of a test failure. If in doubt as to the appropriateness of an eval, use an assert.</p>
+<p>All eval fucntions are included in the <tt class="xref py py-mod docutils literal"><span class="pre">pyinq.asserts</span></tt> package.</p>
+<div class="section" id="mixing-asserts-and-evals">
+<h3>Mixing asserts and evals<a class="headerlink" href="#mixing-asserts-and-evals" title="Permalink to this headline">¶</a></h3>
+<p>More often than not, there will be a mixture of important and unimportant pieces of program state. Thus, you&#8217;d like to use an assert for some conditions, and an eval for others. There is nothing preventing you from doing this.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyinq.tags</span> <span class="kn">import</span> <span class="n">test</span>
+<span class="kn">from</span> <span class="nn">pyinq.asserts</span> <span class="kn">import</span> <span class="n">eval_true</span><span class="p">,</span><span class="n">assert_true</span>
+
+<span class="nd">@test</span>
+<span class="k">def</span> <span class="nf">mixture</span><span class="p">():</span>
+        <span class="n">eval_true</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">assert_true</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>And to demonstrate an eval function&#8217;s passive nature:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyinq.tags</span> <span class="kn">import</span> <span class="n">test</span>
+<span class="kn">from</span> <span class="nn">pyinq.asserts</span> <span class="kn">import</span> <span class="n">eval_true</span><span class="p">,</span><span class="n">assert_true</span>
+
+<span class="nd">@test</span>
+<span class="k">def</span> <span class="nf">mixture</span><span class="p">():</span>
+        <span class="n">eval_true</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+        <span class="n">assert_true</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="expected-errors">
+<h2>1.2. Expected Errors<a class="headerlink" href="#expected-errors" title="Permalink to this headline">¶</a></h2>
+<p>Well written code should raise an error if it enters a state it cannot recover from. It is better to let the caller deal with the damage than make things worse by incorrectly &#8220;fixing&#8221; it. This is especially true of libraries, where the caller may be coming from anywhere. Plus, it adhere&#8217;s to one of Python&#8217;s mantras: &#8220;It is easier to ask for forgiveness than permission&#8221;. As such, it is necessary to check that a function that should return an error, does.</p>
+<p>There are 2 ways to do this: the hard way, or the easy way. First, the hard way:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyinq.tags</span> <span class="kn">import</span> <span class="n">test</span>
+<span class="kn">from</span> <span class="nn">pyinq.asserts</span> <span class="kn">import</span> <span class="n">assert_true</span><span class="p">,</span><span class="n">fail</span>
+
+<span class="nd">@test</span>
+<span class="k">def</span> <span class="nf">expected_error_hard</span><span class="p">():</span>
+        <span class="k">try</span><span class="p">:</span>
+                <span class="nb">int</span><span class="p">(</span><span class="s">&quot;val&quot;</span><span class="p">)</span>
+                <span class="n">fail</span><span class="p">(</span><span class="s">&quot;Expected a ValueError, but it didn&#39;t occur.&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="n">assert_true</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If the expected error (<tt class="xref py py-const docutils literal"><span class="pre">ValueError</span></tt>) doesn&#8217;t occur, <tt class="xref py py-func docutils literal"><span class="pre">fail()</span></tt> is called with a message, forcing test to immediately fail and display the message. If the expected error is raised, the expected clause catches it and executes. A dummy assert is run because otherwise, the test will be reported as having no asserts rather than succeeding. You could of course organize this as a helper method to make use easier, but that&#8217;s beside the point. This is overly verbose, ugly, and a pain to setup and use.</p>
+<p>Since this is a very common operation, PyInq allows you to indicate that a test should expect a certain error. If the error occurs at any point in the test, the test passes; if it fails to occur, the test fails. This is done with an argument to the <a class="reference internal" href="tags.html#test" title="test"><tt class="xref py py-func docutils literal"><span class="pre">test()</span></tt></a> tag:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyinq.tags</span> <span class="kn">import</span> <span class="n">test</span>
+
+<span class="nd">@test</span><span class="p">(</span><span class="n">expect</span><span class="o">=</span><span class="ne">ValueError</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">expected_error_easy</span><span class="p">():</span>
+        <span class="nb">int</span><span class="p">(</span><span class="s">&quot;val&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The above test will pass if a <tt class="xref py py-const docutils literal"><span class="pre">ValueError</span></tt> is raised, and will fail if no error is raised. Note that if ValueError is raised, the test still immediately halts; it simply reports that it passed rather than reporting the error. Also, if an error that is not the expected error is raised, it is treated as a normal error.</p>
+<p>One important note: when the expected error is raised, the test will still immediately halt. It simply will do so with a report of success. There are two ways to handle this. Firstly, you could ensure that any test in which you expect an error ends with the expression you expect to cause this error. This is what many xUnit frameworks choose for you. The other option, provided to you by PyInq (amongst other frameworks), is to use a specialized assert for the task.</p>
+<div class="section" id="assert-raises">
+<h3>assert_raises<a class="headerlink" href="#assert-raises" title="Permalink to this headline">¶</a></h3>
+<p>The expect argument is nice, but the expected error can be raised by <em>any</em> expression in the test. What if the error is not raised by the line you expect? Although the report includes the line information, you may wish for the test to fail in that case. Additionally, you may wish for the test to continue after the error is raised. To this end, PyInq provides <tt class="xref py py-func docutils literal"><span class="pre">assert_raises()</span></tt>. The following test works the same as <tt class="xref py py-func docutils literal"><span class="pre">expected_error_easy()</span></tt> above:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyinq.tags</span> <span class="kn">import</span> <span class="n">test</span>
+<span class="kn">from</span> <span class="nn">pyinq.asserts</span> <span class="kn">import</span> <span class="n">assert_raises</span>
+
+<span class="nd">@test</span>
+<span class="k">def</span> <span class="nf">demo_assert_raises</span><span class="p">():</span>
+        <span class="n">assert_raises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span><span class="nb">int</span><span class="p">,</span><span class="s">&quot;val&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>assert_raises requires you to tell it the error to expect as well as the function to run. Optionally, you may provide a list of argumentd and keyword arguments, which will be passed to the funciton upon evaluation.</p>
+<p>Simply pass the expected error and the function to evaluate, in that order. You may also pass a list of arguments and/or keyword arguments, as seen by the argument &#8220;val&#8221; above. Not that passing assert_raises a function and not the raw expression is important. If you pass an expression, Python will evaluate and raise any errors on its own, circumventing assert_raises.</p>
+</div>
+</div>
+<div class="section" id="test-fixtures">
+<h2>1.3. Test Fixtures<a class="headerlink" href="#test-fixtures" title="Permalink to this headline">¶</a></h2>
+<p>Python holds the DRY principle very close to its heart. DRY stands for &#8220;Don&#8217;t Repeat Yourself&#8221;. That is, strive for code reuse wherever possible. It reduces the number of opportunities for errors, makes deebugging easier, and leads to much cleaner code.</p>
+<p>In unit testing, tests often have to initlaize the program state before they begin, and clean up after themselves once they complete. In the examples so far, that code has been a part of the test itself. This works - to a point.</p>
+<p>First off, it means you have code that you aren&#8217;t testing as part of test. Generally, set up code is code that you are reasonably certain you can trust. Thus, having it in a test is...awkward. What happens if you have clean up code that must run regardless of whether or not a test succeeds? Any time an assert fails, the test ends immediately, so this won&#8217;t happen.</p>
+<p>And finally, this often leads to code in direct violation of DRY. Often, you will have a number of related tests which all use the same setup and tear down routines. These will likely be grouped together, be it in the same file, or using one of the structures yet to be described (<a class="reference internal" href="#test-classes"><em>Test Classes</em></a> and <a class="reference internal" href="#test-suites"><em>Test Suites</em></a>). What you&#8217;d really like to do is register some code with PyInq that will always be used as set up code for a group of related functions.</p>
+<p>As with most major unit test frameworks, PyInq provides this functionality in the form of test fixtures. A test fixture marks a function as the setup or tear down function for a certain group of tests.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyinq.asserts</span> <span class="kn">import</span> <span class="n">assert_equal</span><span class="p">,</span><span class="n">assert_true</span>
+<span class="kn">from</span> <span class="nn">pyinq.tags</span> <span class="kn">import</span> <span class="n">before</span><span class="p">,</span><span class="n">test</span><span class="p">,</span><span class="n">after</span>
+
+<span class="nd">@before</span>
+<span class="k">def</span> <span class="nf">setup</span><span class="p">():</span>
+        <span class="k">global</span> <span class="n">fib</span>
+        <span class="n">fib</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">13</span><span class="p">]</span>
+
+<span class="nd">@test</span>
+<span class="k">def</span> <span class="nf">verify_fib</span><span class="p">():</span>
+        <span class="k">global</span> <span class="n">fib</span>
+        <span class="n">num1</span><span class="p">,</span> <span class="n">num2</span> <span class="o">=</span> <span class="n">fib</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+        <span class="k">for</span> <span class="nb">next</span> <span class="ow">in</span> <span class="n">fib</span><span class="p">[</span><span class="mi">2</span><span class="p">:]:</span>
+                <span class="n">assert_equal</span><span class="p">(</span><span class="n">num1</span> <span class="o">+</span> <span class="n">num2</span><span class="p">,</span> <span class="nb">next</span><span class="p">)</span>
+                <span class="n">num1</span><span class="p">,</span> <span class="n">num2</span> <span class="o">=</span> <span class="n">num2</span><span class="p">,</span> <span class="nb">next</span>
+
+<span class="nd">@test</span>
+<span class="k">def</span> <span class="nf">test_ratio</span><span class="p">():</span>
+        <span class="k">global</span> <span class="n">fib</span>
+        <span class="n">phi</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="nb">pow</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">))</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">num</span> <span class="o">=</span> <span class="n">fib</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">prev_diff</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s">&#39;inf&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">next_num</span> <span class="ow">in</span> <span class="n">fib</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+                <span class="n">ratio</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">next_num</span><span class="p">)</span> <span class="o">/</span> <span class="n">num</span>
+                <span class="n">diff</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">phi</span> <span class="o">-</span> <span class="n">ratio</span><span class="p">)</span>
+                <span class="n">assert_true</span><span class="p">(</span><span class="n">diff</span> <span class="o">&lt;=</span> <span class="n">prev_diff</span><span class="p">)</span>
+                <span class="n">num</span><span class="p">,</span> <span class="n">prev_diff</span> <span class="o">=</span> <span class="n">next_num</span><span class="p">,</span> <span class="n">diff</span>
+
+<span class="nd">@after</span>
+<span class="k">def</span> <span class="nf">tear_down</span><span class="p">():</span>
+        <span class="k">global</span> <span class="n">fib</span>
+        <span class="k">del</span> <span class="n">fib</span>
+</pre></div>
+</div>
+<p>The above example demonstrates the use of both basic test fixtures. <tt class="xref py py-func docutils literal"><span class="pre">setup()</span></tt> will occur before each test, as indicated by the <a class="reference internal" href="tags.html#before" title="before"><tt class="xref py py-func docutils literal"><span class="pre">before()</span></tt></a> tag. <tt class="xref py py-func docutils literal"><span class="pre">tear_down()</span></tt> will occur after each test, as indicated by the <a class="reference internal" href="tags.html#after" title="after"><tt class="xref py py-func docutils literal"><span class="pre">after()</span></tt></a> tag. The test fixtures contain the common setup and tear down code, allowing each test to take care of itself. Since they occur before and after each test, <a class="reference internal" href="tags.html#before" title="before"><tt class="xref py py-func docutils literal"><span class="pre">before()</span></tt></a> and <a class="reference internal" href="tags.html#after" title="after"><tt class="xref py py-func docutils literal"><span class="pre">after()</span></tt></a> are called test-level fixtures.</p>
+<p>If you require setup and/or tear down for an entire module, use module-level fixtures.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyinq.asserts</span> <span class="kn">import</span> <span class="n">assert_equal</span><span class="p">,</span><span class="n">assert_true</span>
+<span class="kn">from</span> <span class="nn">pyinq.tags</span> <span class="kn">import</span> <span class="n">beforeModule</span><span class="p">,</span><span class="n">test</span><span class="p">,</span><span class="n">afterModule</span>
+
+<span class="nd">@beforeModule</span>
+<span class="k">def</span> <span class="nf">setup_module</span><span class="p">():</span>
+        <span class="k">global</span> <span class="n">fib</span>
+        <span class="n">fib</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">13</span><span class="p">]</span>
+
+<span class="nd">@test</span>
+<span class="k">def</span> <span class="nf">verify_fib</span><span class="p">():</span>
+        <span class="k">global</span> <span class="n">fib</span>
+        <span class="n">num1</span><span class="p">,</span> <span class="n">num2</span> <span class="o">=</span> <span class="n">fib</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+        <span class="k">for</span> <span class="nb">next</span> <span class="ow">in</span> <span class="n">fib</span><span class="p">[</span><span class="mi">2</span><span class="p">:]:</span>
+                <span class="n">assert_equal</span><span class="p">(</span><span class="n">num1</span> <span class="o">+</span> <span class="n">num2</span><span class="p">,</span> <span class="nb">next</span><span class="p">)</span>
+                <span class="n">num1</span><span class="p">,</span> <span class="n">num2</span> <span class="o">=</span> <span class="n">num2</span><span class="p">,</span> <span class="nb">next</span>
+
+<span class="nd">@test</span>
+<span class="k">def</span> <span class="nf">test_ratio</span><span class="p">():</span>
+        <span class="k">global</span> <span class="n">fib</span>
+        <span class="n">phi</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="nb">pow</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">))</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">num</span> <span class="o">=</span> <span class="n">fib</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">prev_diff</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s">&#39;inf&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">next_num</span> <span class="ow">in</span> <span class="n">fib</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+                <span class="n">ratio</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">next_num</span><span class="p">)</span> <span class="o">/</span> <span class="n">num</span>
+                <span class="n">diff</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">phi</span> <span class="o">-</span> <span class="n">ratio</span><span class="p">)</span>
+                <span class="n">assert_true</span><span class="p">(</span><span class="n">diff</span> <span class="o">&lt;=</span> <span class="n">prev_diff</span><span class="p">)</span>
+                <span class="n">num</span><span class="p">,</span> <span class="n">prev_diff</span> <span class="o">=</span> <span class="n">next_num</span><span class="p">,</span> <span class="n">diff</span>
+
+<span class="nd">@afterModule</span>
+<span class="k">def</span> <span class="nf">tear_down_module</span><span class="p">():</span>
+        <span class="k">global</span> <span class="n">fib</span>
+        <span class="k">del</span> <span class="n">fib</span>
+</pre></div>
+</div>
+<p>Each of these fixtures will only run once, before anything else in the module is run, and after everything else has finished running. Thus, if there is program state that will not change throughout the module, module-level fixtures can set this up.</p>
+<p>Note that fixtures do not need to appear in any particular order. PyInq knows when to run each fixture based on its type, not on its physical location. You may want to keep a specific order to make it easier for you to read, but it make no difference to PyInq.</p>
+<p>Also, fixtures do not need to appear in pairs. A <a class="reference internal" href="tags.html#before" title="before"><tt class="xref py py-func docutils literal"><span class="pre">before()</span></tt></a> may appear without a <a class="reference internal" href="tags.html#after" title="after"><tt class="xref py py-func docutils literal"><span class="pre">after()</span></tt></a>, and vice versa.</p>
+<p>Additionally, you may mix fixture types all you wish. That is, a file may have both test-level and module-level fixtures.</p>
+<p>And finally, a single module should not contain multiple fixtures of the same type (ie two functions marked with <a class="reference internal" href="tags.html#before" title="before"><tt class="xref py py-func docutils literal"><span class="pre">before()</span></tt></a>). In the case that this occurs, the behavior is undefined.</p>
+</div>
+<div class="section" id="test-classes">
+<span id="id1"></span><h2>1.4. Test Classes<a class="headerlink" href="#test-classes" title="Permalink to this headline">¶</a></h2>
+<p>A test class is a group of functions, organized into a Python class, which will be run together. They should have some reason to be grouped together, most often that they are testing the same unit in your project.</p>
+<p>To denote a test class, decorate your class with the <a class="reference internal" href="tags.html#testClass" title="testClass"><tt class="xref py py-func docutils literal"><span class="pre">testClass()</span></tt></a> tag, and put your tests in it. Without this tag, the behavior of the tests within that class is undefined.</p>
+<p>Here is a very basic test class:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyinq.asserts</span> <span class="kn">import</span> <span class="n">assert_true</span>
+<span class="kn">from</span> <span class="nn">pyinq.tags</span> <span class="kn">import</span> <span class="n">testClass</span><span class="p">,</span><span class="n">test</span>
+
+<span class="nd">@testClass</span>
+<span class="k">class</span> <span class="nc">Class1</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+        <span class="nd">@test</span>
+        <span class="k">def</span> <span class="nf">test_class_test_1</span><span class="p">():</span>
+                <span class="n">assert_true</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note something very important: as with other test functions <tt class="xref py py-func docutils literal"><span class="pre">test1()</span></tt> doesn&#8217;t take any parameters. <em>Not even :attr:`self`</em>. Rather than forcing you to provide <tt class="xref py py-attr docutils literal"><span class="pre">self</span></tt> to test class functions, it&#8217;s created and passed to each test behind the scenes. Each test gets its own instance of <tt class="xref py py-attr docutils literal"><span class="pre">self</span></tt>, so this can&#8217;t be used to share values across tests.</p>
+<p>To refer to an instance of the test class, simply use the attribute <tt class="xref py py-attr docutils literal"><span class="pre">self</span></tt>, as you would in a normal Python class.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyinq.asserts</span> <span class="kn">import</span> <span class="n">assert_equal</span>
+<span class="kn">from</span> <span class="nn">pyinq.tags</span> <span class="kn">import</span> <span class="n">testClass</span><span class="p">,</span><span class="n">test</span>
+
+<span class="nd">@testClass</span>
+<span class="k">class</span> <span class="nc">Class1</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+        <span class="nd">@test</span>
+        <span class="k">def</span> <span class="nf">using_self</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">num</span> <span class="o">=</span> <span class="mi">8</span>
+                <span class="n">assert_equal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num</span><span class="p">,</span><span class="mi">8</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In the context of a lone test, <tt class="xref py py-attr docutils literal"><span class="pre">self</span></tt> is not very useful. But when combined with test-level fixtures, it&#8217;s utility becomes clear:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyinq.asserts</span> <span class="kn">import</span> <span class="n">assert_equal</span>
+<span class="kn">from</span> <span class="nn">pyinq.tags</span> <span class="kn">import</span> <span class="n">testClass</span><span class="p">,</span><span class="n">before</span><span class="p">,</span><span class="n">test</span>
+
+<span class="nd">@testClass</span>
+<span class="k">class</span> <span class="nc">Class1</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+        <span class="nd">@before</span>
+        <span class="k">def</span> <span class="nf">setup</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">num</span> <span class="o">=</span> <span class="mi">4</span>
+
+        <span class="nd">@test</span>
+        <span class="k">def</span> <span class="nf">using_self</span><span class="p">():</span>
+                <span class="n">assert_in</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Although a contrived example, this shows a couple very important things. First off, in the context of a test class, test-level fixtures also are passed <tt class="xref py py-attr docutils literal"><span class="pre">self</span></tt> by PyInq behind the scenes (this includes <a class="reference internal" href="tags.html#after" title="after"><tt class="xref py py-func docutils literal"><span class="pre">after()</span></tt></a>, although it&#8217;s not shown here). Secondly, <tt class="xref py py-attr docutils literal"><span class="pre">self</span></tt> represents an instance of the test class, which is maintained throughout the life of the test. As such, local variables can be set which are inaccessible from any other test.</p>
+<p>In many instances, you will not need this feature, but it can be useful nonetheless.</p>
+<div class="section" id="test-class-fixtures">
+<h3>Test Class Fixtures<a class="headerlink" href="#test-class-fixtures" title="Permalink to this headline">¶</a></h3>
+<p>A class-level test fixture is a function in a test class marked with either the <a class="reference internal" href="tags.html#beforeClass" title="beforeClass"><tt class="xref py py-func docutils literal"><span class="pre">beforeClass()</span></tt></a> or <a class="reference internal" href="tags.html#afterClass" title="afterClass"><tt class="xref py py-func docutils literal"><span class="pre">afterClass()</span></tt></a> tag. These fixtures run before and after everything else in the class:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyinq.asserts</span> <span class="kn">import</span> <span class="n">assert_in</span>
+<span class="kn">from</span> <span class="nn">pyinq.tags</span> <span class="kn">import</span> <span class="n">testClass</span><span class="p">,</span><span class="n">beforeClass</span><span class="p">,</span><span class="n">test</span><span class="p">,</span><span class="n">afterClass</span>
+
+<span class="nd">@testClass</span>
+<span class="k">class</span> <span class="nc">Class1</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+        <span class="nd">@beforeClass</span>
+        <span class="k">def</span> <span class="nf">setup_class</span><span class="p">():</span>
+                <span class="n">Class1</span><span class="o">.</span><span class="n">nums</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">13</span><span class="p">,</span><span class="mi">21</span><span class="p">]</span>
+
+        <span class="nd">@test</span>
+        <span class="k">def</span> <span class="nf">using_self</span><span class="p">():</span>
+                <span class="n">assert_in</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="n">Class1</span><span class="o">.</span><span class="n">nums</span><span class="p">)</span>
+
+        <span class="nd">@afterClass</span>
+        <span class="k">def</span> <span class="nf">teardown_class</span><span class="p">():</span>
+                <span class="k">del</span> <span class="n">Class1</span><span class="o">.</span><span class="n">nums</span>
+</pre></div>
+</div>
+<p>Note that class-level fixtures <em>are not part of a class instance</em>. They are executed as static methods of the class that contains them. As such, they do <em>not</em> have access to <tt class="xref py py-attr docutils literal"><span class="pre">self</span></tt>.</p>
+</div>
+</div>
+<div class="section" id="test-suites">
+<span id="id2"></span><h2>1.5. Test Suites<a class="headerlink" href="#test-suites" title="Permalink to this headline">¶</a></h2>
+<p>A test suite is a group of tests that are executed together. They may or may not have any logical connection, and they are not necessarily collected in one module.</p>
+<p>By default, all tests are in the same, unnamed suite; that&#8217;s why they all run together. However, you can explicitly define a test as part of a suite. No matter where the test is located in the file, its suite memebership will be logged.</p>
+<p>A test that is part of a suite will still be run by default. Being in a suite simply means that all specified tests will be run when that suite is run.</p>
+<div class="section" id="tests">
+<h3>Tests<a class="headerlink" href="#tests" title="Permalink to this headline">¶</a></h3>
+<p>Any PyInq test may be made part of any test suite. All it requires is an argument to the <a class="reference internal" href="tags.html#test" title="test"><tt class="xref py py-func docutils literal"><span class="pre">test()</span></tt></a> tag:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyinq.asserts</span> <span class="kn">import</span> <span class="n">assert_true</span>
+<span class="kn">from</span> <span class="nn">pyinq.tags</span> <span class="kn">import</span> <span class="n">test</span>
+
+<span class="nd">@test</span><span class="p">(</span><span class="n">suite</span><span class="o">=</span><span class="s">&quot;suite1&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">suite_test1</span><span class="p">():</span>
+        <span class="n">assert_true</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="nd">@test</span><span class="p">(</span><span class="n">suite</span><span class="o">=</span><span class="s">&quot;suite2&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">suite_test2</span><span class="p">():</span>
+        <span class="n">assert_true</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="nd">@test</span><span class="p">(</span><span class="n">suite</span><span class="o">=</span><span class="s">&quot;suite1&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">suite_test3</span><span class="p">():</span>
+        <span class="n">assert_true</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="nd">@test</span>
+<span class="k">def</span> <span class="nf">suite_test4</span><span class="p">():</span>
+        <span class="n">assert_true</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In the above example, 2 new suites are created: &#8220;suite1&#8221; which contains <tt class="xref py py-func docutils literal"><span class="pre">suite_test1()</span></tt> and <tt class="xref py py-func docutils literal"><span class="pre">suite_test3()</span></tt>; and &#8220;suite2&#8221; which has <tt class="xref py py-func docutils literal"><span class="pre">suite_test2()</span></tt>. Note that no setup is required to make a test suite. Simply provide the name of the suite as a string: if it already exists, the test will be added to the correct suite; otherwise, the suite is created. This example also demonstrates mixing tests not in a suite with ones that are.</p>
+<p>Class tests may also be part of a suite:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyinq.asserts</span> <span class="kn">import</span> <span class="n">assert_true</span>
+<span class="kn">from</span> <span class="nn">pyinq.tags</span> <span class="kn">import</span> <span class="n">testClass</span><span class="p">,</span><span class="n">before</span><span class="p">,</span><span class="n">test</span>
+
+<span class="nd">@testClass</span>
+<span class="k">class</span> <span class="nc">Class1</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+        <span class="nd">@before</span>
+        <span class="k">def</span> <span class="nf">setup</span><span class="p">():</span>
+                <span class="n">assert_true</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+
+        <span class="nd">@test</span><span class="p">(</span><span class="n">suite</span><span class="o">=</span><span class="s">&quot;suite1&quot;</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">test1</span><span class="p">():</span>
+                <span class="n">assert_true</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="nd">@before</span>
+<span class="k">def</span> <span class="nf">setup</span><span class="p">():</span>
+        <span class="n">assert_true</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="nd">@test</span><span class="p">(</span><span class="n">suite</span><span class="o">=</span><span class="s">&quot;suite1&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test2</span><span class="p">():</span>
+        <span class="n">assert_true</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>When &#8220;suite1&#8221; is executed, both test1 and test2 will be executed. <em>This includes any relevant test fixtures</em>. So in the preceding example, <tt class="xref py py-func docutils literal"><span class="pre">Class1.setup()</span></tt> will be run before <tt class="xref py py-func docutils literal"><span class="pre">Class1.test1()</span></tt>, and <tt class="xref py py-func docutils literal"><span class="pre">setup()</span></tt> will be run before <tt class="xref py py-func docutils literal"><span class="pre">test2()</span></tt>. The same goes for test fixtures of any level. PyInq assumes that these test fixtures contain code necessary for the associates tests to run, so it wouldn&#8217;t make sense to leave them out of the suite.</p>
+</div>
+<div class="section" id="id3">
+<h3>Test Classes<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<p>An entire test class may be made part of a test suite in much the same way as a test:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyinq.asserts</span> <span class="kn">import</span> <span class="n">assert_true</span>
+<span class="kn">from</span> <span class="nn">pyinq.tags</span> <span class="kn">import</span> <span class="n">testClass</span><span class="p">,</span><span class="n">test</span>
+
+<span class="nd">@testClass</span><span class="p">(</span><span class="n">suite</span><span class="o">=</span><span class="s">&quot;class suite&quot;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Class1</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+        <span class="nd">@test</span><span class="p">(</span><span class="n">suite</span><span class="o">=</span><span class="s">&quot;suite1&quot;</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">test1</span><span class="p">():</span>
+                <span class="n">assert_true</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+
+        <span class="nd">@test</span>
+        <span class="k">def</span> <span class="nf">test2</span><span class="p">():</span>
+                <span class="n">assert_true</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>When the <tt class="docutils literal"><span class="pre">suite</span></tt> argument is passed to <a class="reference internal" href="tags.html#testClass" title="testClass"><tt class="xref py py-func docutils literal"><span class="pre">testClass()</span></tt></a>, every test in the class is added to the named suite. If a test specifies its own suite, it is added to both. Thus, in the above example, <tt class="xref py py-func docutils literal"><span class="pre">Class1.test1()</span></tt> appears in both &#8220;suite1&#8221; and &#8220;class suite&#8221;, while <tt class="xref py py-func docutils literal"><span class="pre">Class1.test2()</span></tt> only appears in &#8220;class suite&#8221;.</p>
+</div>
+<div class="section" id="test-suite-fixtures">
+<h3>Test Suite Fixtures<a class="headerlink" href="#test-suite-fixtures" title="Permalink to this headline">¶</a></h3>
+<p>Test suites also have their own set of test fixtures, which are predictably named <a class="reference internal" href="tags.html#beforeSuite" title="beforeSuite"><tt class="xref py py-func docutils literal"><span class="pre">beforeSuite()</span></tt></a> and <a class="reference internal" href="tags.html#afterSuite" title="afterSuite"><tt class="xref py py-func docutils literal"><span class="pre">afterSuite()</span></tt></a>. They&#8217;re asscoiated with the appropriate test suite by an argument naming the suite, since suites don&#8217;t have a central location:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyinq.asserts</span> <span class="kn">import</span> <span class="n">assert_true</span>
+<span class="kn">from</span> <span class="nn">pyinq.tags</span> <span class="kn">import</span> <span class="n">beforeSuite</span><span class="p">,</span><span class="n">test</span>
+
+<span class="nd">@beforeSuite</span><span class="p">(</span><span class="n">suite</span><span class="o">=</span><span class="s">&quot;suite1&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">setup_suite1</span><span class="p">():</span>
+        <span class="n">assert_true</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="nd">@beforeSuite</span>
+<span class="k">def</span> <span class="nf">setup_default_suite</span><span class="p">():</span>
+        <span class="n">assert_true</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="nd">@test</span><span class="p">(</span><span class="n">suite</span><span class="o">=</span><span class="s">&quot;suite1&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test1</span><span class="p">():</span>
+        <span class="n">assert_true</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="nd">@test</span>
+<span class="k">def</span> <span class="nf">test2</span><span class="p">():</span>
+        <span class="n">assert_true</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You&#8217;ll notice that <tt class="xref py py-func docutils literal"><span class="pre">setup_default_suite()</span></tt> is not told which suite to setup. This indicates it should set up the deafult suite. So when the default suite is run, this fixture will be run before the rest of the suite. And when &#8220;suite1&#8221; is run, <tt class="xref py py-func docutils literal"><span class="pre">setup_suite1()</span></tt> will serve as the suite&#8217;s setup fixture.</p>
+</div>
+</div>
+<div class="section" id="skipping-tests">
+<h2>1.6. Skipping Tests<a class="headerlink" href="#skipping-tests" title="Permalink to this headline">¶</a></h2>
+<p>There are a number of reasons you may wish to not run a test. Sometimes you know it fails but haven&#8217;t had time to fix it, and sometimes it&#8217;s incomplete. To this end, PyInq provides a simple method for skipping the test without having to change anything about the test itself:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyinq.asserts</span> <span class="kn">import</span> <span class="n">assert_true</span>
+<span class="kn">from</span> <span class="nn">pyinq.tags</span> <span class="kn">import</span> <span class="n">test</span><span class="p">,</span><span class="n">skip</span>
+
+<span class="nd">@skip</span>
+<span class="nd">@test</span>
+<span class="k">def</span> <span class="nf">test1</span><span class="p">():</span>
+        <span class="n">assert_true</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>With the simple addition of the <tt class="xref py py-func docutils literal"><span class="pre">skip()</span></tt> tag, the test will be passed over. To reinsert it, simply delete <tt class="docutils literal"><span class="pre">skip</span></tt>.</p>
+<p>If you attempt to run a module (or suite) in which all tests are marked to be skipped, that is in fact what will happen: no tests will be run, and thus no report will be printed.</p>
+<div class="section" id="conditional-skips">
+<h3>Conditional Skips<a class="headerlink" href="#conditional-skips" title="Permalink to this headline">¶</a></h3>
+<p>Some tests only apply in certain cases. For example, you may have cross-platform software, which implies some tests will only make sense on one platform. You also could have a new API function, so tests that use it should only be run if the most up to date API is being tested. PyInq makes this an easy problem to solve with <a class="reference internal" href="tags.html#skipIf" title="skipIf"><tt class="xref py py-func docutils literal"><span class="pre">skipIf()</span></tt></a> and <a class="reference internal" href="tags.html#skipUnless" title="skipUnless"><tt class="xref py py-func docutils literal"><span class="pre">skipUnless()</span></tt></a>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">platform</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">pyinq.asserts</span> <span class="kn">import</span> <span class="n">assert_false</span><span class="p">,</span><span class="n">assert_equal</span>
+<span class="kn">from</span> <span class="nn">pyinq.tags</span> <span class="kn">import</span> <span class="n">test</span><span class="p">,</span><span class="n">skipif</span><span class="p">,</span><span class="n">skipUnless</span>
+
+<span class="nd">@test</span>
+<span class="nd">@skipUnless</span><span class="p">(</span><span class="n">platform</span><span class="o">.</span><span class="n">system</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;Unix&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_Unix</span><span class="p">():</span>
+        <span class="n">assert_equal</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getlogin</span><span class="p">(),</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&quot;LOGNAME&quot;</span><span class="p">])</span>
+
+<span class="nd">@test</span>
+<span class="nd">@skipIf</span><span class="p">(</span><span class="n">platform</span><span class="o">.</span><span class="n">python_version_tuple</span><span class="p">()</span> <span class="o">&lt;</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
+<span class="k">def</span> <span class="nf">test_unicode_filenames</span><span class="p">():</span>
+        <span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">supports_unicode_filenames</span>
+        <span class="n">assert_false</span><span class="p">(</span><span class="n">supports_unicode_filenames</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Both <a class="reference internal" href="tags.html#skipIf" title="skipIf"><tt class="xref py py-func docutils literal"><span class="pre">skipIf()</span></tt></a> and <a class="reference internal" href="tags.html#skipUnless" title="skipUnless"><tt class="xref py py-func docutils literal"><span class="pre">skipUnless()</span></tt></a> accept a single argument, which should be the result of checking if the test should be run. A test decorated with <a class="reference internal" href="tags.html#skipIf" title="skipIf"><tt class="xref py py-func docutils literal"><span class="pre">skipIf()</span></tt></a> will be <em>only</em> be skipped if this result is <tt class="xref py py-const docutils literal"><span class="pre">True</span></tt>, while a test decorated with <a class="reference internal" href="tags.html#skipUnless" title="skipUnless"><tt class="xref py py-func docutils literal"><span class="pre">skipUnless()</span></tt></a> <em>will</em> be skipped UNLESS the result is <tt class="xref py py-const docutils literal"><span class="pre">True</span></tt>. In the above example, <tt class="xref py py-func docutils literal"><span class="pre">test_Unix()</span></tt> will be skipped unless the test is being run on a Unix system. <tt class="xref py py-func docutils literal"><span class="pre">test_unicode_filenames()</span></tt> will not be run if the Python version is less than 2.3, as that was when the function was added.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">1. Writing Better Tests</a><ul>
+<li><a class="reference internal" href="#eval-functions">1.1. Eval Functions</a><ul>
+<li><a class="reference internal" href="#mixing-asserts-and-evals">Mixing asserts and evals</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#expected-errors">1.2. Expected Errors</a><ul>
+<li><a class="reference internal" href="#assert-raises">assert_raises</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#test-fixtures">1.3. Test Fixtures</a></li>
+<li><a class="reference internal" href="#test-classes">1.4. Test Classes</a><ul>
+<li><a class="reference internal" href="#test-class-fixtures">Test Class Fixtures</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#test-suites">1.5. Test Suites</a><ul>
+<li><a class="reference internal" href="#tests">Tests</a></li>
+<li><a class="reference internal" href="#id3">Test Classes</a></li>
+<li><a class="reference internal" href="#test-suite-fixtures">Test Suite Fixtures</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#skipping-tests">1.6. Skipping Tests</a><ul>
+<li><a class="reference internal" href="#conditional-skips">Conditional Skips</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="advanced.html"
+                        title="previous chapter">Advanced</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="discovery.html"
+                        title="next chapter">2. Test Discovery</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/bettertests.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="discovery.html" title="2. Test Discovery"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="advanced.html" title="Advanced"
+             >previous</a> |</li>
+        <li><a href="index.html">PyInq 0.2.0 documentation</a> &raquo;</li>
+          <li><a href="advanced.html" >Advanced</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Austin Noto-Moniz.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>
