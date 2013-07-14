@@ -1,7 +1,3 @@
-# docs files #
-##############
-doctrees
-
 # source files #
 ################
 *.pyc
