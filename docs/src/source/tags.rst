@@ -14,7 +14,7 @@ Test Identification
 
    All arguments must be passed as keyword arguments.
 
-   ``expected`` signifies that this test should raise the specified error. Note that if any expression in the test raises the desired exception, the test passes. For more fine grain control over expected exceptions, see :func:`assert_raises`.
+   ``expected`` signifies that the test must raise the specified error in order to pass. Note that any expression in the test may raise the desired exception. For more fine grain control over expected exceptions, see :func:`assert_raises`.
 
    ``suite`` should be a string indicating which suite to put this test in, which can be run from the command line (see :ref:`execution`).
 
@@ -24,7 +24,7 @@ Test Identification
 
    All arguments must be passed as keyword arguments.
 
-   ``suite`` should be a string. All methods in the class will be added to the named suite, which can be run from the command line (see "Test Execution" below). Note that this includes methods listed to be included in a different suite. In this case, the test will appear in both suites.
+   ``suite`` should be a string. All methods in the class will be added to the named suite, which can be run from the command line (see :ref:`execution`). Note that this includes methods listed to be included in a different suite. In this case, the test will appear in both suites.
 
 Test Fixtures
 -------------
@@ -42,25 +42,27 @@ The order of execution is:
 #. afterModule
 #. afterSuite
 
-.. decorator:: before
-   after
-
-   Run before and after each individual test function. Each class may define its own before and after function. A module may define its own before and after function.
-
-.. decorator:: beforeClass
-   afterClass
+.. decorator:: beforeSuite([suite])
+   afterSuite([suite])
    
-   Run before the class's first test and after its last test. A module may define its own beforeClass and afterClass function.
+   Run before and after the named suite. If no suite is provided, it is run only when no specific suite is run, effectively treating all detected tests as part of the same suite. This function should be defined in the module scope.
 
 .. decorator:: beforeModule
    afterModule
    
    Run before and after the containing module; that is, all tests in the module. This function should be defined in the module scope.
 
-.. decorator:: beforeSuite([suite])
-   afterSuite([suite])
+.. decorator:: beforeClass
+   afterClass
    
-   Run before and after the named suite. If no suite is provided, it is run only when no specific suite is run, effectively treating all detected tests as part of the same suite. This function should be defined in the module scope.
+   Run before the class's first test and after its last test. A module may define its own beforeClass and afterClass function. If this occurs, all functions not explicitly part of a class are grouped into a single anonymous class with these fixtures.
+
+.. decorator:: before
+   after
+
+   Run before and after each individual test function. Each class may define its own before and after function. A module may also define its own before and after function.
+
+
 
 Skip
 ----

@@ -8,7 +8,7 @@ All that's *necessary* for a unit test is a test function and assert statements.
 Eval Functions
 --------------
 
-As useful as it is for the first assert failure to cause a test to exit, this is not always the desired behavior. Sometimes you are evaluating less critical pieces of program state. While you have an expectation for these values, an incorrect value will not lead to a problem in other parts of the program. Thus, you'd like to see these incorrect values, but only halt if a critical value is wrong.
+As useful as it is for the first assert failure to cause a test to exit, this is not always the desired behavior. Sometimes you are evaluating less critical pieces of program state. While you have an expectation for these values, an incorrect value will not lead to a problem in other parts of the test. Thus, you'd like to see these incorrect values, but only halt if a critical value is wrong.
 
 For this, PyInq has eval functions. Evals are passive asserts. Their names and operation correspond to assert statements, but they do *not* cause the current test to halt on failure.
 
@@ -51,11 +51,10 @@ And to demonstrate an eval function's passive nature::
                 eval_true(False)
                 assert_true(True)
 
-
 Expected Errors
 ---------------
 
-Well written code should raise an error if it enters a state it cannot recover from. It is better to let the caller deal with the damage than make things worse by incorrectly "fixing" it. This is especially true of libraries, where the caller may be coming from anywhere. Plus, it adhere's to one of Python's mantras: "It is easier to ask for forgiveness than permission". As such, it is necessary to check that a function that should return an error, does.
+Well written code should raise an error if it enters a state it cannot recover from. It is better to let the caller deal with the damage than make things worse by incorrectly "fixing" it. This is especially true of libraries, where the caller may be coming from anywhere. Plus, it adheres to one of Python's mantras: "It is easier to ask for forgiveness than permission". As such, it is necessary to check that a function that should return an error, does.
 
 There are 2 ways to do this: the hard way, or the easy way. First, the hard way::
 
@@ -70,7 +69,7 @@ There are 2 ways to do this: the hard way, or the easy way. First, the hard way:
                 except ValueError:
                         assert_true(True)
 
-If the expected error (:const:`ValueError`) doesn't occur, :func:`fail` is called with a message, forcing test to immediately fail and display the message. If the expected error is raised, the expected clause catches it and executes. A dummy assert is run because otherwise, the test will be reported as having no asserts rather than succeeding. You could of course organize this as a helper method to make use easier, but that's beside the point. This is overly verbose, ugly, and a pain to setup and use.
+If the expected error (:const:`ValueError`) doesn't occur, :func:`fail` is called with a message, forcing the test to immediately fail and display the message. If the expected error is raised, the except block catches it and executes. A dummy assert is run because otherwise, the test will be reported as having no asserts rather than succeeding. You could of course organize this as a helper method to make use easier, but that's beside the point. This is overly verbose, ugly, and a pain to set up and use.
 
 Since this is a very common operation, PyInq allows you to indicate that a test should expect a certain error. If the error occurs at any point in the test, the test passes; if it fails to occur, the test fails. This is done with an argument to the :func:`test` tag::
 
@@ -82,36 +81,90 @@ Since this is a very common operation, PyInq allows you to indicate that a test 
 
 The above test will pass if a :const:`ValueError` is raised, and will fail if no error is raised. Note that if ValueError is raised, the test still immediately halts; it simply reports that it passed rather than reporting the error. Also, if an error that is not the expected error is raised, it is treated as a normal error.
 
-One important note: when the expected error is raised, the test will still immediately halt. It simply will do so with a report of success. There are two ways to handle this. Firstly, you could ensure that any test in which you expect an error ends with the expression you expect to cause this error. This is what many xUnit frameworks choose for you. The other option, provided to you by PyInq (amongst other frameworks), is to use a specialized assert for the task.
+Considerations for expected
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+One important thing to note. When the expected error is raised, the test will still immediately halt; it will just do so with a report of success. But what about ensuring a specific statement raises an error? Or doing something else once that error is raised? Consider the following code, testing the user's :func:`add` function::
+
+        from pyinq.tags import test
+        
+        @test(expected=TypeError)
+        def false_positive():
+                kwargs = dict(("num1", "2"), ("num2",8))
+                add(**kwargs)
+
+        def add(num1, num2):
+                return int(num1) + int(num2)
+
+Because they have misused the builtin :func:`dict` function, which raises a :const:`TypeError` in the case of failure, the test will pass. However, since :func:`add` would not raise an error, it seems this test should fail. On its own, the expected argument cannot handle this situation.
+
+There are two ways to account for this situation. You could place the statement you expect to raise the error at the end of the test. In some xUnit frameworks, this is your only option. But it falls short, restricting you, while leaving some ambiguity. A statement could (correctly) raise an exception before the statement you wish to test, giving you a false positive. You will see this in the traceback, but will then have to restructure your test to account for it, which is a pain.
+
+The other option, provided to you by PyInq (amongst other frameworks), is to use an assert specialized for this task.
 
 assert_raises
 ^^^^^^^^^^^^^
 
-The expect argument is nice, but the expected error can be raised by *any* expression in the test. What if the error is not raised by the line you expect? Although the report includes the line information, you may wish for the test to fail in that case. Additionally, you may wish for the test to continue after the error is raised. To this end, PyInq provides :func:`assert_raises`. The following test works the same as :func:`expected_error_easy` above::
+The :func:`assert_raises` function allows you to ensure a specific error is raised by a specific function call. Simply pass the expected error and the function to evaluate, in that order. You may also pass a list of arguments and/or keyword arguments in the same manner as usual. PyInq runs the function with these arguments and logs the test as a success or failure based on which exception is raised, if any.
+
+Note that it is important to pass a function to :func:`assert_raises`, not an expression. If you provide an expression, Python will evaluate and raise any errors on its own, circumventing assert_raises.
+
+Let's re-write the above test (:func:`false_positive`) using :func:`assert_raises`::
 
         from pyinq.tags import test
-        from pyinq.asserts import assert_raises
+        
+        @test
+        def false_positive():
+                kwargs = dict(("num1", "2"), ("num2",8))
+                assert_raises(TypeError, add, **kwargs)
+
+        def add(num1, num2):
+                return int(num1) + int(num2)
+
+Since an error is no longer expected, the incorrect call to :func:`dict` will cause the test to fail with an error. Once that's corrected, the test will fail due to :func:`add` not raising an error::
+
+        from pyinq.tags import test
+        
+        @test
+        def false_positive():
+                kwargs = dict(num1="2", num2=8)
+                assert_raises(TypeError, add, **kwargs)
+
+        def add(num1, num2):
+                return int(num1) + int(num2)
+
+This is a much more straightforward and controlled method of checking for exceptions, and as such, is the manner in which I recommend doing so.
+
+Forcing Failure
+---------------
+
+Especially when combined with evals, assert functions are robust enough to handle many situations you'll get into while testing. However, no test framework can claim to cover every case. As such, PyUnit includes a :func:`fail` function, which let you force PyInq to fail the current test, as can be seen above. It also accepts a single string to serve as the reason for the failure. If no message is provided, a default message stating that the failure was user-initiated is instead used.
+
+An example of both uses::
+
+        from pyinq.tags import test
+        from pyinq.asserts import fail
 
         @test
-        def demo_assert_raises():
-                assert_raises(ValueError,int,"val")
+        def force_fail_no_message():
+                fail()
 
-assert_raises requires you to tell it the error to expect as well as the function to run. Optionally, you may provide a list of argumentd and keyword arguments, which will be passed to the funciton upon evaluation.
-
-Simply pass the expected error and the function to evaluate, in that order. You may also pass a list of arguments and/or keyword arguments, as seen by the argument "val" above. Not that passing assert_raises a function and not the raw expression is important. If you pass an expression, Python will evaluate and raise any errors on its own, circumventing assert_raises.
+        @test
+        def force_fail():
+                fail("This is a user-generated failure message.")
 
 Test Fixtures
 -------------
 
-Python holds the DRY principle very close to its heart. DRY stands for "Don't Repeat Yourself". That is, strive for code reuse wherever possible. It reduces the number of opportunities for errors, makes deebugging easier, and leads to much cleaner code.
+Python holds the DRY (Don't Repeat Yourself) principle very close to its heart. You should strive for code reuse wherever possible. It reduces the number of opportunities for errors, makes debugging easier, and leads to much cleaner code.
 
-In unit testing, tests often have to initlaize the program state before they begin, and clean up after themselves once they complete. In the examples so far, that code has been a part of the test itself. This works - to a point.
+In unit testing, tests often have to initialize the program state before beginning, and should clean up after themselves once they complete. In the examples so far, that code has been a part of the test itself. This works - to a point.
 
-First off, it means you have code that you aren't testing as part of test. Generally, set up code is code that you are reasonably certain you can trust. Thus, having it in a test is...awkward. What happens if you have clean up code that must run regardless of whether or not a test succeeds? Any time an assert fails, the test ends immediately, so this won't happen.
+It means you have code that you aren't testing as part of test. Set up code should be code you trust, either because it is guarenteed to work, or because it's tested elsewhere. Thus, having it in a test is...awkward. It isn't the focus of this test. What happens if you have clean up code that must run regardless of whether or not a test succeeds? Any time an assert fails, the test ends immediately, so this won't happen.
 
-And finally, this often leads to code in direct violation of DRY. Often, you will have a number of related tests which all use the same setup and tear down routines. These will likely be grouped together, be it in the same file, or using one of the structures yet to be described (:ref:`test_classes` and :ref:`test_suites`). What you'd really like to do is register some code with PyInq that will always be used as set up code for a group of related functions.
+Additionally, it often leads to code in direct violation of DRY. Most mature test suites will have a number of related tests which all use the same set up and tear down routines. These will likely be grouped together, be it in the same file, or using one of the advanced structures yet to be described (:ref:`test_classes` and :ref:`test_suites`). What you'd really like to do is register some code with PyInq that will always be used as set up code for a group of related functions.
 
-As with most major unit test frameworks, PyInq provides this functionality in the form of test fixtures. A test fixture marks a function as the setup or tear down function for a certain group of tests.::
+As with most major unit test frameworks, PyInq provides this functionality in the form of test fixtures. A test fixture marks a function as the set up or tear down function for a certain group of tests.::
 
         from pyinq.asserts import assert_equal,assert_true
         from pyinq.tags import before,test,after
@@ -142,11 +195,11 @@ As with most major unit test frameworks, PyInq provides this functionality in th
                         num, prev_diff = next_num, diff
 
         @after
-        def tear_down():
+        def teardown():
                 global fib
                 del fib
 
-The above example demonstrates the use of both basic test fixtures. :func:`setup` will occur before each test, as indicated by the :func:`before` tag. :func:`tear_down` will occur after each test, as indicated by the :func:`after` tag. The test fixtures contain the common setup and tear down code, allowing each test to take care of itself. Since they occur before and after each test, :func:`before` and :func:`after` are called test-level fixtures.
+The above example demonstrates the use of both basic test fixtures. :func:`setup` will occur before each test, as indicated by the :func:`before` tag. :func:`teardown` will occur after each test, as indicated by the :func:`after` tag. The test fixtures contain the common setup and tear down code, allowing each test to take care of itself. Since they occur before and after each test, :func:`before` and :func:`after` are called test-level fixtures.
 
 If you require setup and/or tear down for an entire module, use module-level fixtures.::
         
@@ -179,27 +232,35 @@ If you require setup and/or tear down for an entire module, use module-level fix
                         num, prev_diff = next_num, diff
 
         @afterModule
-        def tear_down_module():
+        def teardown_module():
                 global fib
                 del fib
 
 
-Each of these fixtures will only run once, before anything else in the module is run, and after everything else has finished running. Thus, if there is program state that will not change throughout the module, module-level fixtures can set this up.
+:func:`setup_module` and :func:`teardown_module` will both only run once; before anything else in the module is run, and after everything else has finished running, respectively. Thus, if there is program state that will not change throughout the module, module-level fixtures can set this up.
 
-Note that fixtures do not need to appear in any particular order. PyInq knows when to run each fixture based on its type, not on its physical location. You may want to keep a specific order to make it easier for you to read, but it make no difference to PyInq.
+Important notes
+^^^^^^^^^^^^^^^
 
-Also, fixtures do not need to appear in pairs. A :func:`before` may appear without a :func:`after`, and vice versa.
+* If a test fails and an :func:`after` fixture is defined, that fixture *will still execute*. It is intended to reset the test environment, and so should undo any damage the test may have caused. Additionally, it should not be adverseley affected by a failed test.
 
-Additionally, you may mix fixture types all you wish. That is, a file may have both test-level and module-level fixtures.
+* In the event that an error occurs in a fixture, how it's handled depends on if it's a 'before' or 'after' fixture.
+  
+  * In an 'after' function, the fixture immediately terminates,a nd execution moves on to the next test. If the next test triggers another 'after' function, it is run normally.
+  * In a 'before' function, the current test will be skipped, as will any 'before' and 'after' functions below it. However, the corresponding 'after' function and any 'after functions' above it will still execute. For example, if an error occurs in a :func:`beforeModule` function, the :func:`before` fixture and :func:`after` fixture will be skipped, along with the test itself. But the :func:`afterModule` fixture will still run.
 
-And finally, a single module should not contain multiple fixtures of the same type (ie two functions marked with :func:`before`). In the case that this occurs, the behavior is undefined.
+* Fixtures do not need to appear in any particular order. PyInq knows when to run each fixture based on its type, not on its physical location. You may want to keep a specific order to make it easier for you to read, but it make no difference to PyInq.
+
+* Fixtures need not appear in pairs. :func:`before` may appear without :func:`after`, and vice versa. When it comes time to run the omitted fixture, it will simply be skipped.
+
+* Mixing fixture types is not only allowed; it's encouraged, A file may have both test-level and module-level fixtures. However, a single module should not contain multiple fixtures of the same type (ie two functions marked with :func:`before`). In the case that this occurs, the behavior is undefined.
 
 .. _test_classes:
 
 Test Classes
 ------------
 
-A test class is a group of functions, organized into a Python class, which will be run together. They should have some reason to be grouped together, most often that they are testing the same unit in your project.
+A test class is a group of functions, organized into a Python class, which will be run together. They should be grouped together for a reason, most often that they are testing the same unit in your project.
 
 To denote a test class, decorate your class with the :func:`testClass` tag, and put your tests in it. Without this tag, the behavior of the tests within that class is undefined.
 
@@ -214,7 +275,7 @@ Here is a very basic test class::
                 def test_class_test_1():
                         assert_true(True)
 
-Note something very important: as with other test functions :func:`test1` doesn't take any parameters. *Not even :attr:`self`*. Rather than forcing you to provide :attr:`self` to test class functions, it's created and passed to each test behind the scenes. Each test gets its own instance of :attr:`self`, so this can't be used to share values across tests.
+Note something very important: as with other test functions :func:`test1` doesn't take any parameters. *Not even self*. Rather than forcing you to provide :attr:`self` to test class functions, it's created and passed to each test behind the scenes. Each test gets its own instance of :attr:`self`, so this can't be used to share values across tests.
 
 To refer to an instance of the test class, simply use the attribute :attr:`self`, as you would in a normal Python class.::
 
@@ -331,7 +392,7 @@ Class tests may also be part of a suite::
         def test2():
                 assert_true(True)
 
-When "suite1" is executed, both test1 and test2 will be executed. *This includes any relevant test fixtures*. So in the preceding example, :func:`Class1.setup` will be run before :func:`Class1.test1`, and :func:`setup` will be run before :func:`test2`. The same goes for test fixtures of any level. PyInq assumes that these test fixtures contain code necessary for the associates tests to run, so it wouldn't make sense to leave them out of the suite.
+When "suite1" is executed, both test1 and test2 will be executed. *This includes any relevant test fixtures*. In the above, :func:`Class1.setup` will be run before :func:`Class1.test1`, and :func:`setup` will be run before :func:`test2`, although neither fixture is tagged as part of the suite. The same goes for test fixtures of any level. PyInq assumes that these test fixtures contain code necessary for the associates tests to run, so it wouldn't make sense to leave them out of the suite.
 
 Test Classes
 ^^^^^^^^^^^^
@@ -356,7 +417,7 @@ When the ``suite`` argument is passed to :func:`testClass`, every test in the cl
 Test Suite Fixtures
 ^^^^^^^^^^^^^^^^^^^
 
-Test suites also have their own set of test fixtures, which are predictably named :func:`beforeSuite` and :func:`afterSuite`. They're asscoiated with the appropriate test suite by an argument naming the suite, since suites don't have a central location::
+Test suites also have their own set of test fixtures, which are predictably named :func:`beforeSuite` and :func:`afterSuite`. They're associated with the appropriate test suite by an argument naming the suite, since suites don't have a central location::
 
         from pyinq.asserts import assert_true
         from pyinq.tags import beforeSuite,test
@@ -377,7 +438,7 @@ Test suites also have their own set of test fixtures, which are predictably name
         def test2():
                 assert_true(True)
 
-You'll notice that :func:`setup_default_suite` is not told which suite to setup. This indicates it should set up the deafult suite. So when the default suite is run, this fixture will be run before the rest of the suite. And when "suite1" is run, :func:`setup_suite1` will serve as the suite's setup fixture.
+You'll notice that :func:`setup_default_suite` is not told which suite to setup. This indicates it should setup the deafult suite. Thus, :func:`setup_default_suite` is the default suite's "before" fixture, and :func:`setup_suite1` is the "before" fixture for "suite1".
 
 Skipping Tests
 --------------
@@ -392,7 +453,7 @@ There are a number of reasons you may wish to not run a test. Sometimes you know
         def test1():
                 assert_true(True)
 
-With the simple addition of the :func:`skip` tag, the test will be passed over. To reinsert it, simply delete ``skip``.
+With the simple addition of the :func:`skip` tag, the test will be passed over. To reinsert it, simply delete the tag.
 
 If you attempt to run a module (or suite) in which all tests are marked to be skipped, that is in fact what will happen: no tests will be run, and thus no report will be printed.
 
@@ -418,4 +479,4 @@ Some tests only apply in certain cases. For example, you may have cross-platform
                 from os.path import supports_unicode_filenames
                 assert_false(supports_unicode_filenames)
 
-Both :func:`skipIf` and :func:`skipUnless` accept a single argument, which should be the result of checking if the test should be run. A test decorated with :func:`skipIf` will be *only* be skipped if this result is :const:`True`, while a test decorated with :func:`skipUnless` *will* be skipped UNLESS the result is :const:`True`. In the above example, :func:`test_Unix` will be skipped unless the test is being run on a Unix system. :func:`test_unicode_filenames` will not be run if the Python version is less than 2.3, as that was when the function was added.
+Both :func:`skipIf` and :func:`skipUnless` accept a single argument which should be some test for whether or not to run the test. A test decorated with :func:`skipIf` will *only* be skipped if this result is :const:`True`, while a test decorated with :func:`skipUnless` *will* be skipped UNLESS the result is :const:`True`. In the above example, :func:`test_Unix` will be skipped unless the test is being run on a Unix system. :func:`test_unicode_filenames` will not be run if the Python version is less than 2.3, as that was when the function was added.

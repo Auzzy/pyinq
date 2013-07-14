@@ -26,7 +26,7 @@ If you run the above test, you'll notice it doesn't actually do anything. Some o
 Assert Functions
 ^^^^^^^^^^^^^^^^
 
-To begin, let's add an assert!::
+To begin, let's add an assert::
         
         from pyinq.tags import test
         from pyinq.asserts import assert_true
@@ -35,9 +35,9 @@ To begin, let's add an assert!::
         def single_assert():
                 assert_true(True)
 
-The above is a use of the most basic assert function. Its only argument is a Python expression. If the expression has a truth value of :const:`True`, it passes; otherwise, it fails. Since its argument is the boolean value :const:`True`, the above test will pass.
+The above is a use of the most basic assert function, :func:`assert_true`. Its only argument is a Python expression. If the expression has a truth value of :const:`True`, it passes; otherwise, it fails. Since its argument is the boolean value :const:`True`, the above test will pass.
 
-Upon execution, you will see a brief report on this test, including a status indicating it passed. This is because all asserts in the test passed. If a single assert fails, the test fails. Additionally, for each assert you will see a line indicating its success, as in the following example::
+Upon execution, you will see a brief report on this test, including a status indicating it passed. This is because all asserts in the test passed. If a single assert fails, the entire test fails. Additionally, for each assert you will see a line indicating its success, as in the following example::
         
         from pyinq.tags import test
         from pyinq.asserts import assert_true,assert_false
@@ -54,7 +54,7 @@ All assert fucntions are included in the :mod:`pyinq.asserts` package.
 Test Contents
 ^^^^^^^^^^^^^
 
-Clearly, the examples so far have been incredibly simple, and if you are unfamiliar with unit testing, they may have left you wondering what the point is. So before I go any further, let me give you a more realistic (albeit simple) example using a function built in to Python::
+Clearly, the examples so far have been incredibly simple, and if you are unfamiliar with unit testing, they may have left you wondering what the point is. So before I go any further, let me give you a more realistic (albeit still somewhat simple) example using a function built in to Python::
         
         import random
         from pyinq.tags import test
@@ -105,7 +105,7 @@ For example, in the following test it is first asserted that the variable :data:
         @test
         def test_assert():
                 foo = "hello"
-                assert_is_instance(foo,str)
+                assert_is_instance(foo, str)
                 assert_true(foo.isalpha())
 
 Errors
@@ -113,7 +113,7 @@ Errors
 
 Sometimes you will execute code which will raise an error. It may be unexepected, such as errors caused by an issue during file I/O. They may be expected, such as with a StopIteration error. But either way, errors will occur, and PyInq must deal with it.
 
-When an error is raised, PyInq first checks if that error was expected (this will be discussed in detail in :ref:`better-tests`). If so, it will be handled in the appropriate manner. If it is unexpected, PyInq will log the error (including traceback) and halt the test. This way, the test will not produce any false results by attempting to continue, and all the information about the error is available to you for correction. A test which terminated due to an error will be be given a status indicating as much.
+When an error is raised, PyInq first checks if that error was expected (this is discussed in detail in :ref:`better-tests`). If so, it will be handled in the appropriate manner. If it is unexpected, PyInq will log the error (including traceback) and halt the test. This way, the test will not produce any false results by attempting to continue, and all the information about the error is available to you for correction. A test which terminated due to an error will be be given a status indicating as much.
 
 What Else?
 ----------

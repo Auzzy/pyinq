@@ -10,7 +10,7 @@ Running a Single Module
 
 Some command line arguments are added to each test module at runtime to allow greater control over execution::
 
-        python foo.py [--html [HTML]] [--suite SUITE]
+        python foo.py [--html [FILE]] [--suite SUITE]
 
 Run without any arguments, all tests found in the module are executed, and the report is printed (in color, if possible) to stdout.
 
