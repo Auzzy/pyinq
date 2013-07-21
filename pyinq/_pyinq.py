@@ -24,7 +24,8 @@ _discovery_enabled = True
 def discover_tests_api(root, pattern=".*", suite_name=None):
     if _discovery_enabled:
         atexit.unregister(_run_at_exit)
-        return _discover_tests(root,pattern,suite_name)
+        _discover_tests(root,pattern)
+        return tags.get_suite(suite_name)
 
 def discover_tests_cmd(root, pattern=".*", **args):
     if _discovery_enabled:

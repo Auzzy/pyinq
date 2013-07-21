@@ -80,7 +80,5 @@ def _discover_modules(root, pattern):
 
     _import_modules(root,sorted(modules))
 
-def discover_tests(root=os.curdir, pattern=".*", suite_name=None):
-    print root
+def discover_tests(root=os.curdir, pattern=".*"):
     _discover_modules(root,pattern)
-    return tags.get_suite(suite_name)

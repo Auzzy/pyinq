@@ -284,5 +284,4 @@ def build_suite(suite_name):
 
 def get_suite(name=None):
     suite = suites[name] if name in suites else TestSuiteData(name)
-    # print suite
     return suite
