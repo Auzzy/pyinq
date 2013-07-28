@@ -36,7 +36,7 @@ How does it work?
 
 It's magic!
 
-Okay, not really. However, it *is* magic in the sense that all you must do is ensure any subfolders are valid Python packages, which should be the case anyways. That's it. There is no directive, line of code, or anything you must add to your tests to make them discoverable.
+Okay, not really. However, it *is* magic in the sense that all you must do is ensure any subfolders are valid Python packages, which should be the case anyways. Remember, all that means is that the folder has a file called __init__.py, which will usually be empty. That's it. There is no directive, line of code, or anything you must add to your tests to make them discoverable.
 
 When you run test discovery, PyInq searches the provided test directory for PyInq tests and loads them [#]_ . If it encounters a directory which appears to be a Python package, it will also search that directory for tests. If it doesn't appear to be a Python package, it will be skipped. Once this process completes, all discovered tests are executed. As with executing an individual file, the order of execution is undefined, so all tests should be independent. And of course, a report on all the test results is provided.
 
@@ -45,11 +45,34 @@ When you run test discovery, PyInq searches the provided test directory for PyIn
 Test Discovery API
 ------------------
 
-PyInq provides an API enabling you to programmatically gather tests. It returns an object representing the suite of tests founds, which you may either run or inspect for more information. Running it returns an object representing the result of each test executed, which you may either pass to a printer object for output and formatting or inspect for more information.
+PyInq provides an API enabling you to programmatically gather tests. It returns an object representing the suite of tests found, which you may either run or inspect for more information. Running it returns an object representing the result of each test executed, which you may either pass to a printer object for output and formatting or inspect for more information.
 
-This is more or less how PyInq does it::
+This is more or less how PyInq performs test discovery::
         
+        import tags
+        import printers
+
+        suite_name = "foo"
+
+        discover_tests_api(root, pattern=".*", suite_name=None)
+        suite = discover_tests('examples'))
         suite = tags.get_suite(suite_name)
         if suite:
                 report = suite()
                 printers.print_report(report, printers.cli)
+
+Let's walk through what's going on in the above code.
+
+Retrieving a test suite
+#######################
+
+The first step is to retrieve the tests to be 
+
+Running a test suite
+####################
+
+
+Printing a report
+#################
+
+
