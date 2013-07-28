@@ -45,12 +45,11 @@ When you run test discovery, PyInq searches the provided test directory for PyIn
 Test Discovery API
 ------------------
 
-PyInq provides an API enabling you to programmatically gather tests. It returns an object representing the suite of tests founds, which you may either run or inspect for more information. Running it returns an object representing the result of each test executed, which you may either pass to a printer object for output and fpormatting or inspect for more information. This is done by PyInq using the following code::
+PyInq provides an API enabling you to programmatically gather tests. It returns an object representing the suite of tests founds, which you may either run or inspect for more information. Running it returns an object representing the result of each test executed, which you may either pass to a printer object for output and formatting or inspect for more information.
+
+This is more or less how PyInq does it::
         
-        suite = tags.get_suite(args["suite"])
-        	
-	if suite:
-		report = suite()
-                
-		printer = printers.html if args["html"] else printers.cli
-		printers.print_report(report,printer,**kwargs)
+        suite = tags.get_suite(suite_name)
+        if suite:
+                report = suite()
+                printers.print_report(report, printers.cli)
