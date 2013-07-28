@@ -1,0 +1,167 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>2. Test Discovery &mdash; PyInq 0.2.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.2.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="author" title="About these documents" href="about.html" />
+    <link rel="top" title="PyInq 0.2.0 documentation" href="index.html" />
+    <link rel="up" title="Advanced" href="advanced.html" />
+    <link rel="next" title="3. Running PyInq" href="execution.html" />
+    <link rel="prev" title="1. Writing Better Tests" href="bettertests.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="execution.html" title="3. Running PyInq"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="bettertests.html" title="1. Writing Better Tests"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyInq 0.2.0 documentation</a> &raquo;</li>
+          <li><a href="advanced.html" accesskey="U">Advanced</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="test-discovery">
+<span id="discovery"></span><h1>2. Test Discovery<a class="headerlink" href="#test-discovery" title="Permalink to this headline">¶</a></h1>
+<p>When testing a large project, organization is key. Grouping related tests is a faily common-sense approach, which PyInq lets you do through <a class="reference internal" href="bettertests.html#test-classes"><em>test classes</em></a> and <a class="reference internal" href="bettertests.html#test-suites"><em>test suites</em></a>. Additionally, you can create multiple tests files. This is a common practice, and often the test directory is constructed to mirror your source directory. Each test file corresponds to a source file, and each test directory corresponds to a source directory.</p>
+<p>Following this convention, your test directory will look something like this:</p>
+<div class="highlight-python"><pre>test_dir/
+        test_foo.py
+        test_bar.py
+        baz/
+                __init__.py
+                test_food_bar.py
+                test_bar_food.py</pre>
+</div>
+<p>While this is great for organizational purposes, it raises one <em>big</em> hurdle: you must run your test files individually. You could write a script of your own to do this for you, but you&#8217;d have to keep updating it. You could write a script to discover and execute all your tests for you, but that seems like it&#8217;s something you shouldn&#8217;t have to do.</p>
+<p>And I agree.</p>
+<div class="section" id="discovering-tests">
+<h2>2.1. Discovering Tests<a class="headerlink" href="#discovering-tests" title="Permalink to this headline">¶</a></h2>
+<p>Running each test in the above directory is made very simple with test discovery:</p>
+<div class="highlight-python"><pre>python -m pyinq discover test_dir</pre>
+</div>
+<p>The &#8220;discover&#8221; keyword is what invokes test discovery, and the next argument (&#8220;test_dir&#8221; above) tells PyInq what the root test directory is. Note that it is interpreted relative to your current working directory. Thus, the above command will work if your current working directory comntains &#8220;test_dir&#8221;. If you want to run discovery on the current folder (such as from within &#8220;test_dir&#8221;), replace &#8220;test_dir&#8221; with &#8221;.&#8221;.</p>
+<p>For a more detailed discussion of the options to this command, see <a class="reference internal" href="execution.html#execute-discovery"><em>Test Discovery</em></a>.</p>
+</div>
+<div class="section" id="how-does-it-work">
+<h2>2.2. How does it work?<a class="headerlink" href="#how-does-it-work" title="Permalink to this headline">¶</a></h2>
+<p>It&#8217;s magic!</p>
+<p>Okay, not really. However, it <em>is</em> magic in the sense that all you must do is ensure any subfolders are valid Python packages, which should be the case anyways. That&#8217;s it. There is no directive, line of code, or anything you must add to your tests to make them discoverable.</p>
+<p>When you run test discovery, PyInq searches the provided test directory for PyInq tests and loads them <a class="footnote-reference" href="#id2" id="id1">[1]</a> . If it encounters a directory which appears to be a Python package, it will also search that directory for tests. If it doesn&#8217;t appear to be a Python package, it will be skipped. Once this process completes, all discovered tests are executed. As with executing an individual file, the order of execution is undefined, so all tests should be independent. And of course, a report on all the test results is provided.</p>
+<table class="docutils footnote" frame="void" id="id2" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>PyInq imports any file matching the provided pattern (or all files if no pattern is provided), registering any tests it finds. Thus, any code not within a class or function will run at that time. For this reason, it is recommended that you avoid code outside of classes and functions.</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="test-discovery-api">
+<h2>2.3. Test Discovery API<a class="headerlink" href="#test-discovery-api" title="Permalink to this headline">¶</a></h2>
+<p>PyInq provides an API enabling you to programmatically gather tests. It returns an object representing the suite of tests founds, which you may either run or inspect for more information. Running it returns an object representing the result of each test executed, which you may either pass to a printer object for output and formatting or inspect for more information.</p>
+<p>This is more or less how PyInq does it:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">suite</span> <span class="o">=</span> <span class="n">tags</span><span class="o">.</span><span class="n">get_suite</span><span class="p">(</span><span class="n">suite_name</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">suite</span><span class="p">:</span>
+        <span class="n">report</span> <span class="o">=</span> <span class="n">suite</span><span class="p">()</span>
+        <span class="n">printers</span><span class="o">.</span><span class="n">print_report</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="n">printers</span><span class="o">.</span><span class="n">cli</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">2. Test Discovery</a><ul>
+<li><a class="reference internal" href="#discovering-tests">2.1. Discovering Tests</a></li>
+<li><a class="reference internal" href="#how-does-it-work">2.2. How does it work?</a></li>
+<li><a class="reference internal" href="#test-discovery-api">2.3. Test Discovery API</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="bettertests.html"
+                        title="previous chapter">1. Writing Better Tests</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="execution.html"
+                        title="next chapter">3. Running PyInq</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/discovery.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="execution.html" title="3. Running PyInq"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="bettertests.html" title="1. Writing Better Tests"
+             >previous</a> |</li>
+        <li><a href="index.html">PyInq 0.2.0 documentation</a> &raquo;</li>
+          <li><a href="advanced.html" >Advanced</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Austin Noto-Moniz.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

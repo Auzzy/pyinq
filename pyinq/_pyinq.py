@@ -30,7 +30,7 @@ def discover_tests_api(root, pattern=".*", suite_name=None):
 def discover_tests_cmd(root, pattern=".*", **args):
     if _discovery_enabled:
         atexit.unregister(_run_at_exit)
-        _discover_tests(root,pattern,args["suite"])
+        _discover_tests(root,pattern)
         run_all(args)
 
 def _run_at_exit():
