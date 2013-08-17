@@ -29,7 +29,7 @@ Running each test in the above directory is made very simple with test discovery
 
 The "discover" keyword is what invokes test discovery, and the next argument ("test_dir" above) tells PyInq what the root test directory is. Note that it is interpreted relative to your current working directory. Thus, the above command will work if your current working directory comntains "test_dir". If you want to run discovery on the current folder (such as from within "test_dir"), replace "test_dir" with ".".
 
-For a more detailed discussion of the options to this command, see :ref:`execute_discovery`.
+You may also specify the filename pattern and output format. For a more detailed discussion of these options, see :ref:`execute_discovery`.
 
 How does it work?
 -----------------
@@ -49,30 +49,94 @@ PyInq provides an API enabling you to programmatically gather tests. It returns 
 
 This is more or less how PyInq performs test discovery::
         
-        import tags
-        import printers
+        from pyinq import discover_tests, printers
 
-        suite_name = "foo"
-
-        discover_tests_api(root, pattern=".*", suite_name=None)
-        suite = discover_tests('examples'))
-        suite = tags.get_suite(suite_name)
-        if suite:
+        if __name__=="__main__":
+                suite = discover_tests(root, pattern, suite_name)
                 report = suite()
                 printers.print_report(report, printers.cli)
 
 Let's walk through what's going on in the above code.
 
 Retrieving a test suite
-#######################
+^^^^^^^^^^^^^^^^^^^^^^^
 
-The first step is to retrieve the tests to be 
+The first step is to retrieve the desired tests. This is encapsulated in the :ref:`discover_tests` function. It takes the same arguments as the command line version. Each argument is optional. Omitting the root will start discovery in the current working directory, omitting the pattern will match all PyInq test files, and omitting the suite name will grab all PyInq tests.
+
+In PyInq, tests have a clear heirarchy::
+
+        suites -> modules -> classes -> tests.
+
+As such, the objects that represent these structures also have a clear heirarchy::
+
+        :ref:`TestSuiteData` -> :ref:`TestModuleData` -> :ref:`TestClassData` -> :ref:`TestData`
+
+Each object contains some data about the structure it represents, such as its name and any associated fixtures. It also consists of a list of objects from the level below (except for :ref:`TestData`). That is, a :ref:`TestSuiteData` object is a list of :ref:`TestModuleData` objects, and so on. In this way, information about your test structure is preserved, allowing you more flexibility in how you handle these tests. The :ref:`discover_tests` function will always return a :ref:`TestSuiteData` object.
+
+Note that internally, PyInq always creates this heirarchy, even if you didn't use these structures. For example, you may have a test module that contains a bunch of tests, some of which are *not* in classes. Internally, those tests are gathered into a single, nameless class. That class's ``name`` field will be ``None`` to reflect this fact. The same is true for tests that aren't placed in any explicit test suite. They are pulled into the feault test suite, which has a name of ``None``.
+
+This makes for greater consistency and eases execution and report handling. And by leaving the ``name`` field with a value of ``None``, the your heirarchy can be presevered since auto-generated structures can easily be separated from your defined structures. It also allows :ref:`discover_tests` to always safely return a :ref:`TestSuiteData` object.
 
 Running a test suite
-####################
+^^^^^^^^^^^^^^^^^^^^
 
+Checking that the test suite is not empty is unncessary, as PyInq will not complain. But if you do wish to check, remember that each object is just a list. Thus, Python's truth value check still works, as does explicitly checking its length.
+
+All data objects are callable, meaning that running it is done by invoking it as you would a function. In the above code snippet, this is done by the following line::
+
+        report = suite()
+
+This will cause all fixtures and tests contained in the heirarchy to be executed. It returns a :ref:`TestSuiteResult` object, which contains information on the executed tests. The information is maintained in the same heirarchical fashion in which it was consumed. There will be a 1:1 mapping from data objects to result objects.
+
+Manually executing a suite
+##########################
+
+Although the example shows a suite, any data object may be executed. For example, if you had a TestSuiteData object ``suite`` and wanted to manually run each module in a test suite, but not the suite itself::
+         
+        results = [module() for module in suite]
+
+This will produce a list of :ref:`TestModuleResult` objects. The fixtures associated with each module will be run, as will all contained test structures. Note that the suite's fixtures **will NOT be run**. Thus, tests run exactly as above may fail. In order to manually run the fixtures properly, a little more work is needed::
+
+        import pyinq.runner as runner
+
+        result = []
+        before_result,halt = runner.run_fixture(suite.before)
+        if not halt:
+                results = [module() for module in suite]
+        after_result,halt = runner.run_fixture(suite.after)
+
+Note the use of the special method ``run_fixture``. It is used for a few reasons. First off, it allows proper handling of any errors or asserts that may appear in a fixture. This includes returning a report on the success of any included asserts. Secondly, it allows the fixture to signal the test to stop, such as in the case of a failed assert. So while you may simply run ``suite.before()``, you lose out on some of PyInq's benefits by doing so.
+
+I've realized this process is a bit uglier than necessary, and so I will clean it up in coming versions.
+
+Manually processing a suite
+###########################
+
+Another reason for manually iterating through suites in a test is gathering the included information. For example, you may just want to print out a snapshot of the gathered tests before running them. Take this example, where the structure of the discovered tests is printed out, along with the structure's name and suite::
+
+        from pyinq import discover_tests
+
+        if __name__=="__main__":
+                suite = discover_tests(root)
+                print "SUITE: " + str(suite.name)
+                for module in suite:
+                        print "\tMODULE: " + str(module.name)
+                        for cls in module:
+                                print "\t\tCLASS: {cls.name} (SUITE: {cls.suite})".format(cls=cls)
+                                for test in cls:
+                                        print "\t\t\tTEST: {test.name} (SUITE: {test.suite})".format(test=test)
+
+Note that this does not actually run the tests, but merely allows you to inspect them. Simply adding ``report = suite()`` afterwards will execute all discovered tests.
 
 Printing a report
-#################
+^^^^^^^^^^^^^^^^^
 
+Running your tests will produce a results object (such as :ref:`TestSuiteResult`) which contains the result of each assert or eval within each executed test. As with the data objects, these objects may be fed into functions predefined by PyInq, or you may pick them apart on your own. As with the data objects, the result objects are lists, and thus can be iterated over.
 
+Of course, using predefined functions is the easiest::
+        
+        from pyinq import printers
+
+        printers.print_report(report, printers.cli)
+
+This
