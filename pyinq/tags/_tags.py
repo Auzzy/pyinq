@@ -16,9 +16,9 @@ THIS SOFTWARE.
 
 from types import ClassType,FunctionType,MethodType,TypeType
 
-from pyinq.tags._util import (BeforeSuite,BeforeModule,BeforeClass,Before,After,
-                             AfterClass,AfterModule,AfterSuite,TestSuiteData,
-                 TestModuleData,TestClassData,TestData,DoNothing)
+from pyinq.data import (BeforeSuite,BeforeModule,BeforeClass,Before,After,
+                       AfterClass,AfterModule,AfterSuite,TestSuiteData,
+                       TestModuleData,TestClassData,TestData,DoNothing)
 
 fixtures = {BeforeSuite:[],
         BeforeModule:[],
