@@ -27,7 +27,7 @@ Running each test in the above directory is made very simple with test discovery
 
         python -m pyinq discover test_dir
 
-The "discover" keyword is what invokes test discovery, and the next argument ("test_dir" above) tells PyInq what the root test directory is. Note that it is interpreted relative to your current working directory. Thus, the above command will work if your current working directory comntains "test_dir". If you want to run discovery on the current folder (such as from within "test_dir"), replace "test_dir" with ".".
+The ``discover`` keyword is what invokes test discovery, and the next argument tells PyInq where to find the root test directory. This path can be either relative or absolute. If you want to treat the current folder as the test root, make this argument ``.``.
 
 You may also specify the filename pattern and output format. For a more detailed discussion of these options, see :ref:`execute_discovery`.
 
@@ -36,9 +36,9 @@ How does it work?
 
 It's magic!
 
-Okay, not really. However, it *is* magic in the sense that all you must do is ensure any subfolders are valid Python packages, which should be the case anyways. Remember, all that means is that the folder has a file called __init__.py, which will often be empty. That's it. There is no directive, line of code, or anything you must add to your tests to make them discoverable.
+Okay, not really. However, it *is* magic in the sense that all you must do is ensure any subfolders are valid Python packages, which should be the case anyways. Remember, all that means is that the folder has a file called ``__init__.py``, which will often be empty. That's it. There is no directive, line of code, or anything you must add to your tests to make them discoverable.
 
-When you run test discovery, PyInq searches the provided test directory for PyInq tests and loads them [#]_ . If it encounters a directory which appears to be a Python package, it will also search that directory for tests. If it doesn't appear to be a Python package, it will be skipped. Once this process completes, all discovered tests are executed. As with executing an individual file, the order of execution is undefined, so all tests should be independent. And of course, a report on all the test results is provided.
+When you run test discovery, PyInq searches the provided test directory for PyInq tests and loads them [#]_. If it encounters a directory which appears to be a Python package, it will also search that directory for tests. If it doesn't appear to be a Python package, it will be skipped. Once this process completes, all discovered tests are executed. As with executing an individual file, the order of execution is undefined, so all tests should be independent. And of course, a report on all the test results is provided.
 
 .. [#] PyInq imports any file matching the provided pattern (or all files if no pattern is provided), registering any tests it finds. Thus, any code not within a class or function will run at that time. For this reason, it is recommended (but not required) that you avoid code outside of classes and functions.
 
@@ -61,7 +61,7 @@ This breaks down into 3 main tasks, as can be seen from the 3 separate function 
 Retrieving a test suite
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-The first step is to retrieve the desired tests. This is encapsulated in the :ref:`discover_tests` function. It takes the same arguments as the command line version. Each argument is optional. Omitting the root will start discovery in the current working directory, omitting the pattern will match all PyInq test files, and omitting the suite name will grab all PyInq tests.
+The first step is to retrieve the desired tests. This is encapsulated in the ``discover_tests`` function. It takes the same arguments as the command line version. Each argument is optional. Omitting the root will start discovery in the current working directory, omitting the pattern will match all PyInq test files, and omitting the suite name will grab all PyInq tests.
 
 In PyInq, tests have a clear heirarchy::
 
@@ -81,7 +81,7 @@ Each object contains some data about the structure it represents, such as its na
 
 Note that internally, PyInq always creates this heirarchy, even if you didn't use these structures. For example, you may have a test module that contains a bunch of tests, some of which are *not* in classes. Internally, those tests are gathered into a single, nameless class. That class's ``name`` field will be ``None`` to reflect this fact. The same is true for tests that aren't placed in any explicit test suite. They are pulled into the default test suite, which has a name of ``None``.
 
-This makes for greater consistency and eases execution and report handling. And by leaving the ``name`` field with a value of ``None``, your heirarchy can be presevered since auto-generated structures can easily be separated from your defined structures. It also allows :ref:`discover_tests` to always safely return a :class:`TestSuiteData` object.
+This makes for greater consistency and eases execution and report handling. Also, leaving the ``name`` field with a value of ``None`` allows auto-generated structures to be easily distinguished from your defined structures. Finally, it allows ``discover_tests`` to always safely return a :class:`TestSuiteData` object.
 
 Running a test suite
 ^^^^^^^^^^^^^^^^^^^^
@@ -97,11 +97,11 @@ This will cause all fixtures and tests contained in the heirarchy to be executed
 Manually executing a suite
 ##########################
 
-Although the example shows a suite, any data object may be executed. For example, if you had a :class:`TestSuiteData` object ``suite`` and wanted to manually run each module in a test suite, but not the suite itself::
+Although the example shows a suite, any data object may be executed. For example, if you had a :class:`TestSuiteData` object ``suite`` and wanted to manually run each module, but not the suite itself::
          
         results = [module() for module in suite]
 
-This will produce a list of :class:`TestModuleResult` objects. The fixtures associated with each module will be run, as will all contained test structures. Note that the suite's fixtures **will NOT be run**. Thus, tests run exactly as above may fail. In order to manually run the fixtures properly, a little more work is needed::
+This will produce a list of :class:`TestModuleResult` objects. The fixtures associated with each module will be run, as will all contained test structures. Note that the suite's fixtures **will NOT be run**. Thus, tests that rely on those fixtures will likely behave unexpectedly. In order to manually run the fixtures properly, a little more work is needed::
 
         import pyinq.runner as runner
 
@@ -111,7 +111,7 @@ This will produce a list of :class:`TestModuleResult` objects. The fixtures asso
                 results = [module() for module in suite]
         after_result,halt = runner.run_fixture(suite.after)
 
-Note the use of the special method ``run_fixture``. It is used for a few reasons. First off, it allows proper handling of any errors or asserts that may appear in a fixture. This includes returning a report on the success of any included asserts. Secondly, it allows the fixture to signal the test to stop, such as in the case of a failed assert. So while you may simply run ``suite.before()``, you lose out on some of PyInq's benefits by doing so.
+Note the use of the special method ``run_fixture``. It is used for a few reasons. First off, it allows proper handling of any errors or asserts that may appear in a fixture. This includes returning a report on the success of any included asserts. Secondly, it allows the fixture to signal the test to stop, such as in the case of a failed assert.
 
 I've realized this process is a bit uglier than necessary. As such, although I don't expect this to be a common use-case, I plan to clean it up in coming versions.
 
@@ -132,7 +132,7 @@ Another reason for manually iterating through suites in a test is gathering the 
                                 for test in cls:
                                         print "\t\t\tTEST: {test.name} (SUITE: {test.suite})".format(test=test)
 
-Note that this does not actually run the tests, but merely allows you to inspect them. Simply adding ``report = suite()`` afterwards will execute all discovered tests.
+Note that this snippet does not actually run the tests, but merely demonstrates inspecting them.
 
 Printing a report
 ^^^^^^^^^^^^^^^^^
@@ -145,14 +145,14 @@ Of course, using predefined printers is the easiest::
 
         printers.print_report(report, printers.cli.default)
 
-This will print the report to the command line using the ``Printer`` class contained within the ``printers.cli.default`` module. You can also define printers to be a bit more clever using packages and the __init__.py file. For example, the printer used in our original example (``printers.cli``) is actually a package that attempts to select a printer based off the system detected so that it can display the output in color. The requirement is that the provided namespace contains a class called ``Printer`` which inherits from :class:`AbstractPrinter`.
+This will print the report to the command line using the ``Printer`` class contained within the ``printers.cli.default`` module. You can also define printers to be a bit more clever using packages and the ``__init__.py`` file. For example, the printer used in our original example (``printers.cli``) is actually a package that attempts to select a printer based off the system detected so that it can display the output in color. The only requirement is that the provided namespace contains a class called ``Printer`` which inherits from :class:`AbstractPrinter`.
 
 Constructing your own printer
 #############################
 
 If one of the included printers doesn't meet your needs, you may wish to write your own. To do so, create a class that subclasses the abstract class :class:`pyinq.printer.AbstractPrinter <AbstractPrinter>`. For now, this class must be called "Printer" to be recognized, but that will change in coming versions.
 
-There are 5 functions to implement: ``title``, to format the report banner;  ``section``, to format the name of each section (module name, class name, etc); ``log_test``, to format the test results; and ``log_fixture``, to log the fixture results. There is also an optional ``cleanup`` function if your printer needs to perform any operations upon exiting.
+There are 4 functions to implement: ``title``, to format the report banner;  ``section``, to format the name of each section (module name, class name, etc); ``log_test``, to log the test results; and ``log_fixture``, to log the fixture results. There is also an optional ``cleanup`` function if your printer needs to perform any operations upon exiting.
 
 To use your printer, pass the module that contains it to the ``pyinq.printers.print_report`` function, and PyInq will handle the rest!
 
