@@ -92,7 +92,7 @@ All data objects are callable, meaning that running it is done by invoking it as
 
         report = suite()
 
-This will cause all fixtures and tests contained in the heirarchy to be executed. It returns a :class:`TestSuiteResult` object, which contains information on the executed tests. The information is maintained in the same heirarchical fashion in which it was consumed. There will be a 1:1 mapping from data objects to result objects.
+This will cause all fixtures and tests contained in the heirarchy to be executed. Running the top-level :class:`TestSuiteData` object will return a :class:`TestSuiteResult` object, which contains information on the executed tests. The information is maintained in the same heirarchical fashion in which it was consumed. There will be a 1:1 mapping from data objects to test result objects.
 
 Manually executing a suite
 ##########################
@@ -137,7 +137,7 @@ Note that this snippet does not actually run the tests, but merely demonstrates 
 Printing a report
 ^^^^^^^^^^^^^^^^^
 
-Running your tests will produce a results object (such as :class:`TestSuiteResult`) which contains the result of each assert or eval within each executed test. As with the data objects, these objects may be fed into functions predefined by PyInq, or you may pick them apart on your own. As with the data objects, the result objects are lists, and thus can be iterated over.
+Running your tests will produce a test results object (such as :class:`TestSuiteResult`) which contains the result of each assert or eval within each executed test. As with the data objects, these objects may be fed into functions predefined by PyInq, or you may pick them apart on your own. As with the data objects, the test result objects are lists, and thus can be iterated over.
 
 Of course, using predefined printers is the easiest::
         
@@ -159,4 +159,15 @@ To use your printer, pass the module that contains it to the ``pyinq.printers.pr
 Manually printing a report
 ##########################
 
-It is possible that the default structure does not fit your needs, in which case you are left with the option to manually inspect the results objects.
+It is possible that the default structure does not fit your needs, in which case you are left with the option to manually inspect the test results objects.
+
+As with the data objects (discussed above), test results objects are organized into a heirarchy. When you execute a data object, you will always be given back a test results o bject of the corresponding type::
+
+        TestSuiteData   -> TestSuiteResult
+        TestModuleData  -> TestModuleResult
+        TestClassData   -> TestClassResult
+        TestData        -> TestResult
+
+As mentioned above, each of these 4 classes is a list of result objects. Each result object represents the result of a single assert. All these results combine to form the outcome of the test. The outcome can be determined by calling `get_status`. Note that this methos can return 3 different values: :const:`True` if the test passed; :const:`False` if the test failed; or :const:`None` if an unexpected error occurred. An error is unexpected if it occurs outside an assert_raises statement and method expecting an error, or if the error raised is not the appropriate type.
+
+These objects also have 3 fields. The `name` field contains the name of the test method. The other 2 fields, `before` and `after`, contain the result of the before and after fixtures at the given level. 
