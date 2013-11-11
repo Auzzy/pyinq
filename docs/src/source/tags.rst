@@ -1,5 +1,5 @@
-pyinq.tags
-==========
+:mod:`pyinq.tags`
+=================
 In order to support a portable and non-restrictive idenitification mechanism, PyInq makes use of Python decorators (which it refers to as tags).
 
 In order to identify a function as a test in PyInq, the function must be wrapped with a test decorator. Similarly, classes containing tests must be wrapped with a testClass decorator.

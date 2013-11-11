@@ -42,6 +42,8 @@ When you run test discovery, PyInq searches the provided test directory for PyIn
 
 .. [#] PyInq imports any file matching the provided pattern (or all files if no pattern is provided), registering any tests it finds. Thus, any code not within a class or function will run at that time. For this reason, it is recommended (but not required) that you avoid code outside of classes and functions.
 
+.. _discovery-api:
+
 Test Discovery API
 ------------------
 
@@ -161,13 +163,19 @@ Manually printing a report
 
 It is possible that the default structure does not fit your needs, in which case you are left with the option to manually inspect the test results objects.
 
-As with the data objects (discussed above), test results objects are organized into a heirarchy. When you execute a data object, you will always be given back a test results o bject of the corresponding type::
+As with the data objects (discussed above), test results objects are organized into a heirarchy. When you execute a data object, you will always be given back a test results object of the corresponding type::
 
         TestSuiteData   -> TestSuiteResult
         TestModuleData  -> TestModuleResult
         TestClassData   -> TestClassResult
         TestData        -> TestResult
 
-As mentioned above, each of these 4 classes is a list of result objects. Each result object represents the result of a single assert. All these results combine to form the outcome of the test. The outcome can be determined by calling `get_status`. Note that this methos can return 3 different values: :const:`True` if the test passed; :const:`False` if the test failed; or :const:`None` if an unexpected error occurred. An error is unexpected if it occurs outside an assert_raises statement and method expecting an error, or if the error raised is not the appropriate type.
+As mentioned above, each of these 4 classes is a list of result objects. Each result object represents the result of a single assert. All these results combine to form the outcome of the test. The outcome can be determined by calling ``get_status``. Note that this method can return 3 different values: :const:`True` if the test passed; :const:`False` if the test failed; or :const:`None` if an unexpected error occurred. All errors not explicitly set as expected (either through the :func:`test` annotation or ``assert_raises`` function) are considered unexpected.
 
-These objects also have 3 fields. The `name` field contains the name of the test method. The other 2 fields, `before` and `after`, contain the result of the before and after fixtures at the given level. 
+These test result objects contain 3 fields. The ``name`` field contains the name of the test method. The other 2 fields, ``before`` and ``after``, contain the result of the before and after fixtures at the given level. A value of :const:`None` for either indicates that fixture was not defined by the user.
+
+Remember that each test result object is a list of assert result objects. These assert result objects are what contain the actual data pertaining to the outcome of a single assert statement. In the most common use case, you will use the object's ``result`` field to determine the outcome of the assert, and then call :func:`str` to obtain (and print) a nicely formatted string with more details.
+
+Of course, you also have access to these details for each assert result object. Along with ``result``, all :class:`AssertResult` objects also contain the line number of the assert (``lineno``) and the actual text of the assert (``call``). Each subtype has its own values specific to its assert.
+
+All of these classes, and more information about them, are available in the :mod:`pyinq.results` module.

@@ -1,6 +1,5 @@
-pyinq.results
-=============
-
+:mod:`pyinq.results`
+====================
 
 Result Containers
 -----------------

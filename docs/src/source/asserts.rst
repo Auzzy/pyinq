@@ -1,5 +1,5 @@
-pyinq.asserts
-=============
+:mod:`pyinq.asserts`
+====================
 
 Assert functions are provided by PyInq to allow the writer to evaluate the program state as needed. These functions are special, as they report their result back to the framework, which then logs the result appropriately.
 

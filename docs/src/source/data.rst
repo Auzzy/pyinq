@@ -1,5 +1,5 @@
-pyinq.data
-==========
+:mod:`pyinq.data`
+=================
 PyInq represents each kind of test object, such as fixtures and tests, with its own class. In general, this doesn't impact you, and this can be safely ignored. However, if you're using the test discovery API, this information may be relevant.
 
 Fixtures

@@ -6,7 +6,7 @@ Any module that imports from the pyinq package is treated as a PyInq test module
 Your First Test
 ---------------
 
-Writting a test is very simple. In PyInq, a test is just a function that is decorated with the ``@test`` tag::
+Writting a test is very simple. In PyInq, a test is just a function that is decorated with the :func:`test` tag::
         
         from pyinq.tags import test
 
