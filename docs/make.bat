@@ -53,6 +53,10 @@ if errorlevel 9009 (
 	exit /b 1
 )
 
+if "%1" == "clean" (
+	rmdir /S %SPHINXBUILD%
+)
+
 if "%1" == "html" (
 	%SPHINXBUILD% -b html %ALLSPHINXOPTS% %BUILDDIR%/html
 	if errorlevel 1 exit /b 1

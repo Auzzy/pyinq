@@ -6,12 +6,12 @@ PyInq includes a couple default printers, as well as some functions for interact
 Note that the printer infrastructure will be getting a bit of an overhaul in order to make it easier to use, cleaner, and more flexible. Thus, if the module cannot currently handle your needs, check back later. In the mean time, you can write a custom one using :ref:`discovery-api`.
 
 .. function:: get_default()
-
-Retrieves the module that PyInq uses as its default.
+        
+        Retrieves the module that PyInq uses as its default.
         
 .. function:: print_report(result, printer=None, \*\*kwargs)
 
-Prints a report on the given result object using the provided printer and arguments.
+        Prints a report on the given result object using the provided printer and arguments.
 
 ``result`` must be a :class:`TestSuiteResult` object. The behavior if it's not is undefined. This requirement will be changed to any result object in upcoming versions.
 
@@ -25,24 +25,24 @@ AbstractPrinter
 The :class:`AbstractPrinter` forms the base of any printer. It provides the methods necessary for the :func:`print_report` method to properly operate. Note that each of the following methods must be implemented by your printer. Failure to do so will result in a :class:`NotImplementedError`.
         
 .. function:: title(name)
-
-Format and print the name of this report.
+        
+        Format and print the name of this report.
 
 .. function:: section(label, name, nl)
-
-Format and print the name of a section. ``label`` is a string which classifies ``name``, eg "Module", "Class". ``nl`` is a bool which signifies this output string should conclude with a newline.
+        
+        Format and print the name of a section. ``label`` is a string which classifies ``name``, eg "Module", "Class". ``nl`` is a bool which signifies this output string should conclude with a newline.
 
 .. function:: log_test(label, result)
-
-Format amd print the given result of a single assert. ``label`` is a string which classifies the result, eg "Test".
+        
+        Format amd print the given result of a single assert. ``label`` is a string which classifies the result, eg "Test".
 
 .. function:: log_fixture(label, result)
-
-Format amd print the given result of a ficture. ``label`` is a string which classifies result, eg "Before Class", "After Class".
+        
+        Format amd print the given result of a ficture. ``label`` is a string which classifies result, eg "Before Class", "After Class".
 
 .. function:: cleanup()
-
-Run at the end of the report. Performs any actions needed to reset the system.
+        
+        Run at the end of the report. Performs any actions needed to reset the system.
 
 
 Printers
