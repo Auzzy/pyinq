@@ -12,6 +12,53 @@ _instance_fact = _asserts.create_result(AssertInstanceResult,PyInqAssertInstance
 _raises_fact = _asserts.create_result(AssertRaisesResult,PyInqAssertRaisesError)
 
 
+# TODO
+# This looks promising to replace my hcaky as hell assert factory, but still doesn't jive well with assert_raises. Look more into how to make this work, including rearranging assert_raises if necessary.
+class AssertFactory(object):
+	def __init__(self, compare, Result, Error, arg_count):
+		self.compare = compare
+
+		def factory(*args):
+			def result(lineno, call, result):
+				return Result(lineno, call, result, *args)
+			def error(lineno, call):
+				return Error(lineno, call, *args)
+			if arg_count != len(args):
+				raise TypeError("Function takes exactly {0} arguments ({1} given)".format(arg_count, len(args)))
+			return result,error
+		self.Factory = factory
+
+	def assert_(*args):
+		return _asserts.assert_base(compare(*args), self.Factory(*args))
+
+	def assert_not(*args):
+		return _asserts.assert_base(not compare(*args), self.Factory(*args))
+
+	def eval(*args):
+		return _asserts.eval_base(compare(*args), self.Factory(*args))
+
+	def eval_not(*args):
+		return _asserts.eval_base(not compare(*args), self.Factory(*args))
+
+# eq = lambda actual,expected: actual == expected
+# equal_fact = AssertFactory(eq, AssertEqualsResult, PyInqAssertEqualsResult, 2)
+# def assert_equal
+# 	return equal_fact.assert(actual, expected)
+# def assert_not_equal
+# 	return equal_fact.assert_not(actual, expected)
+# def eval_equal
+# 	return equal_fact.eval(actual, expected)
+# def eval_not_equal
+# 	return equal_fact.eval_not(actual, expected)
+
+# test_func = lambda func:
+# 
+# raises_factory = AssertFactory(func, AssertRaisesResult, PyInqAssertRaisesError, 2)
+# def assert_raises
+# 	return raises_factory.assert()
+# def eval_raises
+# 	
+
 ##### ASSERTS #####
 
 def assert_true(expr):

@@ -2,7 +2,7 @@ from sys import exc_info
 
 from pyinq.util import create_tb_str,get_trace_start
 from pyinq.results import (TestResult,ExpectedErrorResult,PyInqAssertError,
-                          PyInqFailError,AssertError)
+                          PyInqFailError,UnexpectedError)
 from pyinq import asserts
 
 def handle_error(expected):
@@ -14,7 +14,7 @@ def handle_error(expected):
 		halt = False
 	else:
 		tb_str = create_tb_str(exc_type,exc_value,trace)
-		result = AssertError(tb_str)
+		result = UnexpectedError(tb_str)
 		halt = True
 	return result,halt
 

@@ -35,7 +35,7 @@ def run_all(args):
 	if suite:
 		report = suite()
 
-		printer = printers.html if args["html"] else printers.cli
+		printer = printers.html if args["html"] else printers.get_default()
 		printers.print_report(report,printer,**kwargs)
 
 install_main_parser()

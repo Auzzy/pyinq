@@ -7,7 +7,7 @@ class AbstractPrinter(object):
 	
 	mess = "The \"{func}\" method is not implemented for the type {type}"
 
-	def __init__(self, **kwargs):
+	def __init__(self):
 		if type(self) is AbstractPrinter:
 			raise TypeError("Can't instantiate the abstract base class Printer")
 
@@ -49,7 +49,7 @@ import pyinq.printers.cli
 import pyinq.printers.html
 
 def get_default():
-	return pyinq.printers.cli.Printer
+	return pyinq.printers.cli
 
 def print_report(suite, printer_mod=None, **kwargs):
 	def log_fixture(label, fixture):

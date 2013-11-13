@@ -1,37 +1,60 @@
-class TestStructResult(list):
+class TestResultStruct(list):
 	def __init__(self, name):
-		super(TestStructResult,self).__init__()
+		super(TestResultStruct, self).__init__()
 		self.name = name
 		self.before = None
 		self.after = None
 	
-class TestResult(TestStructResult):
+class TestResultContainer(TestResultStruct):
+	def get_status(self):
+		for result in self:
+			status = result.get_status()
+			# if not status:
+			# 	return status
+			if status is None:
+				return None
+			elif not status:
+				return False
+		return True
+	
+	def append(self, value):
+		if not isinstance(value, TestResultStruct):
+			raise ValueError("Cannot directly append an assert result object. Please use one of the test result objects.")
+		super(self, TestResultContainer).append(value)
+
+class TestResult(TestResultStruct):
 	def get_status(self):
 		for test in self:
+			# if not status:
+			# 	return status
 			if test.result is None:
 				return None
 			elif not test.result:
 				return False
 		return True
 
-class TestContainerResult(TestStructResult):
-	def get_status(self):
-		for result in self:
-			status = result.get_status()
-			if status is None:
-				return None
-			elif not status:
-				return False
-		return True
+	def append(self, value):
+		if isinstance(value, TestResultStruct):
+			raise ValueError("Cannot append another test result object. TestResult may only contain assert result objects.")
+		super(self, TestResult).append(value)
 
-class TestClassResult(TestContainerResult):
-	pass
+class TestClassResult(TestResultContainer):
+	def append(self, value):
+		if not isinstance(value, TestResult):
+			raise ValueError("Expected the value to be a TestResult object. Type: {0}".format(type(value)))
+		super(self, TestClassResult).append(value)
 
-class TestModuleResult(TestContainerResult):
-	pass
+class TestModuleResult(TestResultContainer):
+	def append(self, value):
+		if not isinstance(value, TestResultStruct):
+			raise ValueError("Expected the value to be a TestResult object. Type: {0}".format(type(value)))
+		super(self, TestModuleResult).append(value)
 
-class TestSuiteResult(TestContainerResult):
-	pass
+class TestSuiteResult(TestResultContaineir):
+	def append(self, value):
+		if not isinstance(value, TestResultStruct):
+			raise ValueError("Expected the value to be a TestResult object. Type: {0}".format(type(value)))
+		super(self, TestSuiteResult).append(value)
 
 
 ##### ERRORS #####
@@ -98,13 +121,6 @@ class PyInqFailError(PyInqError):
 def create_result_str(result, lines=[], args=[]):
 	format_str = result + "\n\t" + "\n\t".join(lines)
 	return format_str.format(*args)
-
-	'''
-	output = result
-	for line in lines:
-		output += "\n\t{0}".format(line)
-	return output.format(*args)
-	'''
 
 class Result(object):
 	def __init__(self, result):
@@ -200,9 +216,9 @@ class FailResult(Result):
 					[self.mess],
 					args=(self.lineno,))
 
-class AssertError(Result):
+class UnexpectedError(Result):
 	def __init__(self, trace):
-		super(AssertError,self).__init__(None)
+		super(UnexpectedError,self).__init__(None)
 		self.trace = trace
 	
 	def __str__(self):
