@@ -152,7 +152,7 @@ This will print the report to the command line using the ``Printer`` class conta
 Constructing your own printer
 #############################
 
-If one of the included printers doesn't meet your needs, you may wish to write your own. To do so, create a class that subclasses the abstract class :class:`pyinq.printer.AbstractPrinter <AbstractPrinter>`. For now, this class must be called "Printer" to be recognized, but that will change in coming versions.
+If one of the included printers doesn't meet your needs, you may wish to write your own. To do so, create a class that subclasses the abstract class :class:`AbstractPrinter`. For now, this class must be called "Printer" to be recognized, but that will change in coming versions.
 
 There are 4 functions to implement: ``title``, to format the report banner;  ``section``, to format the name of each section (module name, class name, etc); ``log_test``, to log the test results; and ``log_fixture``, to log the fixture results. There is also an optional ``cleanup`` function if your printer needs to perform any operations upon exiting.
 
@@ -178,4 +178,4 @@ Remember that each test result object is a list of assert result objects. These 
 
 Of course, you also have access to these details for each assert result object. Along with ``result``, all :class:`AssertResult` objects also contain the line number of the assert (``lineno``) and the actual text of the assert (``call``). Each subtype has its own values specific to its assert.
 
-All of these classes, and more information about them, are available in the :mod:`pyinq.results` module.
+All of these classes, and more information about them, are available in the :mod:`results` module.

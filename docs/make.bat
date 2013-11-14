@@ -54,7 +54,7 @@ if errorlevel 9009 (
 )
 
 if "%1" == "clean" (
-	rmdir /S %SPHINXBUILD%
+	rmdir /S %BUILDDIR% /Q
 )
 
 if "%1" == "html" (

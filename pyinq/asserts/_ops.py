@@ -14,20 +14,19 @@ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
 THIS SOFTWARE.
 """
 
-import atexit
+from sys import exc_info
+from traceback import extract_tb
 
-_exitfuncs = {}
+from pyinq.util import create_tb_str
 
-def register(func, *args, **kwargs):
-    _exitfuncs[func] = (args,kwargs)
+def in_(item, collection):
+    return item in collection
 
-def unregister(func):
-    if func in _exitfuncs:
-        del _exitfuncs[func] 
-
-def _run_at_exit():
-    for func in _exitfuncs:
-        args,kwargs = _exitfuncs[func]
+def test_raises(exception, func, args, kwargs):
+    try:
         func(*args,**kwargs)
-
-atexit.register(_run_at_exit)
+        return ""
+    except exception:
+        exc_type,exc_value,trace_obj = exc_info()[:3]
+        trace = extract_tb(trace_obj)[1:]
+        return create_tb_str(exc_type,exc_value,trace)

@@ -14,20 +14,34 @@ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
 THIS SOFTWARE.
 """
 
-import atexit
+from pyinq.results import TestResult
+from pyinq.util import get_call_frame
 
-_exitfuncs = {}
+results = None
 
-def register(func, *args, **kwargs):
-    _exitfuncs[func] = (args,kwargs)
+def _assert_func(test, Result, Error):
+    global results
+    lineno,call = get_call()
+    result = Result(lineno, call, test)
+    if result.result:
+        results.append(result)
+    else:
+        raise Error(lineno, call)
 
-def unregister(func):
-    if func in _exitfuncs:
-        del _exitfuncs[func] 
+def _eval_func(test, Result):
+    global results
+    lineno,call = get_call()
+    result = Result(lineno, call, test)
+    results.append(result)
 
-def _run_at_exit():
-    for func in _exitfuncs:
-        args,kwargs = _exitfuncs[func]
-        func(*args,**kwargs)
+def clear_results():
+    global results
+    results = None
 
-atexit.register(_run_at_exit)
+def init_results(test_name):
+    global results
+    results = TestResult(test_name)
+
+def get_call():
+    call_frame = get_call_frame()
+    return call_frame[2],call_frame[4][0].strip()

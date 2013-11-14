@@ -1,9 +1,9 @@
-:mod:`pyinq.printers`
-=====================
+:mod:`printers`
+===============
 
 PyInq includes a couple default printers, as well as some functions for interacting with them, and the ability to create your own.
 
-Note that the printer infrastructure will be getting a bit of an overhaul in order to make it easier to use, cleaner, and more flexible. Thus, if the module cannot currently handle your needs, check back later. In the mean time, you can write a custom one using :ref:`discovery-api`.
+Note that the printer infrastructure will be getting a bit of an overhaul in order to make it easier to use, cleaner, and more flexible. Thus, if the module cannot currently handle your needs, check back later. In the mean time, you can write a custom one using the :ref:`discovery-api`.
 
 .. function:: get_default()
         
@@ -22,7 +22,11 @@ Note that the printer infrastructure will be getting a bit of an overhaul in ord
 
 AbstractPrinter
 ---------------
-The :class:`AbstractPrinter` forms the base of any printer. It provides the methods necessary for the :func:`print_report` method to properly operate. Note that each of the following methods must be implemented by your printer. Failure to do so will result in a :class:`NotImplementedError`.
+.. class:: AbstractPrinter(\*\*kwargs)
+
+        This forms the base of any printer. It provides the methods necessary for the :func:`print_report` method to properly operate. ``kwargs`` allows any subprinter to easily accept arguments. If your printer does not require any arguments, you may simply omit the constructor.
+        
+Each of the following methods must be implemented by your printer. Failure to do so will result in a :class:`NotImplementedError`.
         
 .. function:: title(name)
         
@@ -50,14 +54,14 @@ Printers
 
 The built-in printer modules.
 
-Command Line (CLI): printers.cli
-################################
+Command Line (CLI): :mod:`printers.cli`
+#######################################
 
 The default printer. This is actually a package of 3 printers selected based on the environment in which the test is running. The goal is to produce color output to the command line. In the standard Windows console, this should always work. In Linux, it will only work in bash, due to the obnoxious method I had to use of coloring via character control codes. No matter the environment, if it is detected that I can't output in color, then I output in the same format, but black and white.
 
 I intend to rework these using third-party modules such that color will work on Windows, Linux, and Mac, but haven't gotten around to it yet.
 
-HTML: primaters.html
-####################
+HTML: :mod:`printers.html`
+##########################
 
 Outputs to a file in HTML. Nothing is written to stdout except a success message that also prints the location the file was written to.

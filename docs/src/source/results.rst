@@ -1,5 +1,5 @@
-:mod:`pyinq.results`
-====================
+:mod:`results`
+==============
 
 When a test is run, the results are output in a highly structured heirarchy. The heirarchy reflects the structure of the tests. Thus, there is a separate test result object for each suite, module, class, and test function. The heirachy of these objects is as expected: modules in suites, classes in modules, and tests in classes.
 
@@ -13,39 +13,44 @@ The following assert result objects form the base of all assert result objects.
 .. class:: Result(result)
         
         The base object for all assert result objects.
-
-        ``result`` is a three-state variable (True, False, or None) indicating the success of the call. True indicates it passed, False indicates it succeeded, and None indicates an unepxected error occurred.
+        
+        ``result`` should be the raw value returned from the comparison function. It will be converted into a three-state variable indicating success: :const:`True` for pass, :const:`False` for fail, and :const:`None` for an unepxected error. This allows an intervening assert result object acces to the return value of a comparison function that doesn't return a boolean.
 
 .. class:: AssertResult(lineno, call, result)
         
         The base for all assert calls. Along with the result of the call, any subclass must provide the line number the call appeared on, as well as the actial call itself.
-        
-        As the simplest assert result object, it serves as the result for assert_true, assert_false, assert_none, assert_not_none, assert_attrib, assert_not_attrib, eval_true, eval_false, eval_none, eval_not_none, eval_attrib, and eval_not_attrib.
 
+The following assert result objects are actually raised, and subclass :class:`AssertResult`. All of them override their calls to :func:`str` to output an informative result string.
 
-The following assert result objects are actually raised, and subclass :class:`AssertResult`. All of them override their calls to :func:`str` to output a very pretty mesasge containing the relevant info.
-
-For :class:`AssertEqualsResult`, :class:`AssertInResult`, :class:`AssertInstanceResult`, the additional arguments are the parameters that were passed into the corresponding assert/eval function.
+For :class:`AssertTruthResult`, :class:`AssertEqualsResult`, :class:`AssertInResult`, :class:`AssertInstanceResult`, and :class:`AssertAttribResult`, the additional arguments are the parameters that were passed into the corresponding assert/eval function.
 
 Since :class:`AssertRaisesResult` and :class:`ExpectedErrorResult` both deal with expected errors, their parameters do not directly map to their data.
 
+.. class:: AssertTruthResult(lineno, call, result, value)
+        
+        The result of a call to :func:`assert_true`, :func:`assert_false`, :func:`eval_true`, or :func:`eval_false`.
+
 .. class:: AssertEqualsResult(lineno, call, result, actual, expected)
      
-        The result of a call to assert_equal, assert_not_equals, assert_is, assert_is_not, eval_equal, eval_not_equal, eval_is, or eval_is_not.
+        The result of a call to :func:`assert_equal`, :func:`assert_not_equal`, :func:`assert_is`, :func:`assert_is_not`, :func:`assert_none`, :func:`assert_not_none`,  :func:`eval_equal`, :func:`eval_not_equal`, :func:`eval_is`, :func:`eval_is_not`, :func:`eval_none`, or :func:`eval_not_none`.
 
 .. class:: AssertInResult(lineno, call, result, item, collection)
 
-        The result of a call to assert_in, assert_not_in, eval_in, and eval_not_in.
+        The result of a call to :func:`assert_in`, :func:`assert_not_in`, :func:`eval_in`, or :func:`eval_not_in`.
 
 .. class:: AssertInstanceResult(lineno, call, result, obj, cls)
 
-        The result of a call to assert_is_instance, assert_is_not_instance, eval_instance, and eval_is_not_instance.
+        The result of a call to :func:`assert_is_instance`, :func:`assert_is_not_instance`, :func:`eval_is_instance`, or :func:`eval_is_not_instance`.
 
-.. class:: AssertRaisesResult(lineno, call, result, trace, expected)
+.. class:: AssertAttribResult(lineno, call, result, obj, attrib_name)
+
+        The result of a call to :func:`assert_attrib`, :func:`assert_not_attrib`, :func:`eval_attrib`, or :func:`eval_not_attrib`.
+
+.. class:: AssertRaisesResult(lineno, call, result, expected, func, args, kwargs)
        
-        The result of a call to assert_raises or eval_raises.
+        The result of a call to :func:`assert_raises` or :func:`eval_raises`.
         
-        Stores the traceback of the function call (if there was one) as well as the exception that was expected.        
+        ``result`` is expected to be a string containing the corresponding traceback, or an empty string to indicate no exception occurred.
 
 .. class:: ExpectedErrorResult(result, expected, lineno=None)
        
@@ -103,7 +108,7 @@ The following test result objects are directly returned when a data object is ca
         Contains a test result object for each module in this suite. Can only contain :class:`TestResultModule` objects.
 
 
-All of these objects except (:class:`TestResultStruct`) contain the following method.
+All test result objects (except the base :class:`TestResultStruct`) contain the following method.
 
 .. function:: get_status()
 
