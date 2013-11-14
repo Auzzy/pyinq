@@ -3,7 +3,10 @@ from traceback import extract_tb
 
 from pyinq.util import create_tb_str
 
-def test_raises(exception, func, *args, **kwargs):
+def in_(item, collection):
+	return item in collection
+
+def test_raises(exception, func, args, kwargs):
 	try:
 		func(*args,**kwargs)
 		return ""

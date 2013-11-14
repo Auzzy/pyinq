@@ -9,7 +9,7 @@ class AbstractPrinter(object):
 
 	def __init__(self):
 		if type(self) is AbstractPrinter:
-			raise TypeError("Can't instantiate the abstract base class Printer")
+			raise TypeError("Can't instantiate the abstract base class AbstractPrinter")
 
 	def title(self, name):
 		"""Logs the report title."""

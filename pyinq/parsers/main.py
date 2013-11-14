@@ -10,7 +10,7 @@ def compose(parser=None, **kwargs):
 
 	if not parser:
 		parser = ArgumentParser(**kwargs)
-	parser.add_argument("--html",nargs='?',type=FileType('w'),default=False,
+	parser.add_argument("--html",nargs='?',type=FileType('w'),default=False, metavar="FILE",
 			help="Where to place the HTML test report (default: stdout)")
 	parser.add_argument("--suite",default=None,
 			help="The suite to run. If not provided, all tests are run.")

@@ -10,7 +10,7 @@ from pyinq.tags import tags
 MAIN = "__main__.py"
 PACKAGE = "__init__.py"
 MODULE = ".py"
-	
+
 def _import_modules(root, modules):
 	abs_root_path = normpath(join(os.getcwd(),root))
 	sys.path = [abs_root_path] + sys.path
@@ -65,4 +65,4 @@ def _discover_modules(root, pattern):
 	_import_modules(root,sorted(modules))
 
 def discover_tests(root=os.curdir, pattern=".*"):
-    _discover_modules(root,pattern)
+	_discover_modules(root,pattern)

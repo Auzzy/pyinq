@@ -267,11 +267,5 @@ def build_suite(suite_name):
 		suites[suite_name] = suite_data
 
 def get_suite(name=None):
-<<<<<<< HEAD
     suite = suites[name] if name in suites else TestSuiteData(name)
     return suite
-=======
-	suite = suites[name] if name in suites else TestSuiteData(name)
-	# print suite
-	return suite
->>>>>>> docs

@@ -7,15 +7,14 @@ class TestResultStruct(list):
 	
 class TestResultContainer(TestResultStruct):
 	def get_status(self):
+		passing = True
 		for result in self:
 			status = result.get_status()
-			# if not status:
-			# 	return status
 			if status is None:
 				return None
-			elif not status:
-				return False
-		return True
+			elif passing and not status:
+				passing = False
+		return passing
 	
 	def append(self, value):
 		if not isinstance(value, TestResultStruct):
@@ -24,14 +23,13 @@ class TestResultContainer(TestResultStruct):
 
 class TestResult(TestResultStruct):
 	def get_status(self):
+		passing = True
 		for test in self:
-			# if not status:
-			# 	return status
 			if test.result is None:
 				return None
-			elif not test.result:
-				return False
-		return True
+			elif passing and not test.result:
+				passing = False
+		return passing
 
 	def append(self, value):
 		if isinstance(value, TestResultStruct):
@@ -71,6 +69,14 @@ class PyInqAssertError(PyInqError):
 	def result(self):
 		return AssertResult(self.lineno,self.call,False)
 
+class PyInqAssertTruthError(PyInqAssertError):
+	def __init__(self, lineno, call, value):
+		super(PyInqAssertTruthError, self).__init__(lineno, call)
+		self.value = value
+	
+	def result(self):
+		return AssertTruthResult(self.lineno, self.call, False, self.value)
+
 class PyInqAssertEqualsError(PyInqAssertError):
 	def __init__(self, lineno, call, actual, expected):
 		super(PyInqAssertEqualsError,self).__init__(lineno,call)
@@ -97,6 +103,15 @@ class PyInqAssertInstanceError(PyInqAssertError):
 
 	def result(self):
 		return AssertInstanceResult(self.lineno,self.call,False,self.obj,self.cls)
+
+class PyInqAssertAttribError(PyInqAssertError):
+	def __init__(self, lineno, call, obj, attrib_name):
+		super(PyInqAssertAttribError, self).__init__(lineno, call)
+		self.obj = obj
+		self.attrib_name = attrib_name
+
+	def result(self):
+		return AssertAttribResult(self.lineno, self.call, False, self.obj, self.attrib_name)
 
 class PyInqAssertRaisesError(PyInqAssertError):
 	def __init__(self, lineno, call, trace, expected):
@@ -138,6 +153,17 @@ class AssertResult(Result):
 	def __str__(self):
 		return "{0} (line {1}): {2}".format(self.call,self.lineno,self.result)
 
+class AssertTruthResult(AssertResult):
+	def __init__(self, lineno, call, result, value):
+		super(AssertTruthResult, self).__init__(lineno, call, result)
+		self.value = value
+	
+	def __str__(self):
+		result_str = super(AssertTruthResult, self).__str__()
+		return create_result_str(result_str,
+					["truth value: {0}"],
+					args=(bool(self.value),))
+
 class AssertEqualsResult(AssertResult):
 	def __init__(self, lineno, call, result, actual, expected):
 		super(AssertEqualsResult,self).__init__(lineno,call,result)
@@ -174,20 +200,40 @@ class AssertInstanceResult(AssertResult):
 					["expected type: {0}","object class:  {1}"],
 					args=(self.class_name,self.obj_name))
 
+class AssertAttribResult(AssertResult):
+	def __init__(self, lineno, call, result, obj, attrib_name):
+		super(AssertAttribResult,self).__init__(lineno, call, result)
+		self.obj_name = obj.__class__.__name__
+		self.attrib_name = attrib_name
+
+	def __str__(self):
+		result_str = super(AssertAttribResult, self).__str__()
+		return create_result_str(result_str,
+					["attrib name: {0}", "object class:  {1}"],
+					args=(self.attrib_name, self.obj_name))
+
 class AssertRaisesResult(AssertResult):
-	def __init__(self, lineno, call, result, trace, expected):
+	def __init__(self, lineno, call, result, expected, func, args, kwargs):
 		super(AssertRaisesResult,self).__init__(lineno,call,result)
 		self.expected = expected.__name__
-		trace_lines = ["    {0}".format(line) for line in trace.splitlines()]
+		trace_lines = ["    {0}".format(line) for line in result.splitlines()]
 		self.trace = '\n'.join(trace_lines)
+		self.func_str = self._create_func_str(func.func_name, args, kwargs)
 	
+	def _create_func_str(self, func_name, args, kwargs):
+		args_str_list = [str(val) for val in args]
+		kwargs_str_list = ["{0}={1}".format(key, kwargs[key]) for key in kwargs]
+		params_str = ", ".join(args_str_list + kwargs_str_list)
+		return "{0}({1})".format(func_name, params_str)
+
 	def __str__(self):
 		result_str = super(AssertRaisesResult,self).__str__()
+		func_str_output = "function call: {0}".format(self.func_str)
 		if self.trace:
-			return "{0}\n{1}".format(result_str,self.trace)
+			return '\n'.join([result_str, func_str_output, self.trace])
 		else:
 			return create_result_str(result_str,
-						["{0} did not occur"],
+						[func_str_output, "{0} did not occur"],
 						args=(self.expected,))
 
 class ExpectedErrorResult(AssertResult):
