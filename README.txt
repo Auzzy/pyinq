@@ -1,4 +1,3 @@
-
 =====
 PyInq
 =====
@@ -25,6 +24,7 @@ Differences From PyUnit (unittest)
 
 Other Notable Features
 ----------------------
+* Test discovery
 * Test fixtures
 	* At test, class, module, and suite level
 * Expected exceptions
@@ -34,20 +34,13 @@ Other Notable Features
 	* CLI defaults to black and white in any other system
 * Command line test module/suite execution
 
-Coming soon
------------
-* Context manager for assertRaises
-* Command-line single test case/class execution
-* Multi-suite tests
-* Custom printer modules
-* Python 3 support
-
 Documentation
 -------------
-Formal documentation is finally complete! It is both included in the package itself, and present on PyPI at `http://pythonhosted.org/PyInq/ <http://pythonhosted.org/PyInq/>`. From now on, I'll be keeping this up to date as needed.
+Formal documentation is finally complete! It is both included in the package itself, and present on PyPI at `http://pythonhosted.org/PyInq/ <http://pythonhosted.org/PyInq/>`_. From now on, I'll be keeping this up to date as needed.
 
 Let me know your thoughts! If you find any issues with it, feel free to email me, and I'll fix it asap.
 
+Additionally, below I've included some examples of how to use PyInq.
 
 ##############
 Basic Examples
@@ -150,3 +143,30 @@ Contact Me
 If you have any questions or comments, find any bugs, or wish to make any feature requests, shoot me an email at pyinq.test@gmail.com. I am especially hoping to receive bug reports, for although I am unaware of any bugs, fresh sets of eyes have a better chance of finding what I missed.
 
 Also, I will be setting up a separate web page and public GitHub repo for this project very soon. I will post those links here once they are ready.
+
+Change Log
+----------
+v0.2.1, November 15, 2013
+    - Wrote formal documentation
+    - Cleaned up a bunch of naming and heriarchical decisions
+    - Refactored some ugly pieces of backend code
+
+v0.2.0, March 3, 2013
+    - Test discovery (command line and API)
+    - Made test discovery a subcommand, with its own special command line arguments
+    - Test execution through Python interpreter ("python -m pyinq")
+    - Implicit class instance now "self" (was "this")
+    - @test's expected error argument now "expect" (was "expected")
+    - Empty classes no longer listed in test report
+
+    - Disable auto-execution in code
+    - Refactored test fixture and test data classes
+        - Treating test object as a string yields test structure within that object
+    - Rebuilt suite collection
+    - Rebuilt test registration
+
+v0.1.1, July 26, 2012 --
+    - Renamed each tag to begin with a lower case letter.
+    - Fixed a bug in the eval example.
+
+v0.1.0, July 23, 2012 -- Initial release.

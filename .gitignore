@@ -1,3 +1,8 @@
 # source files #
 ################
 *.pyc
+build/
+dist/
+PyInq.egg-info/
+MANIFEST
+
