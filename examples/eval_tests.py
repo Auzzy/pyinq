@@ -23,6 +23,10 @@ def test1():
 	eval_in(4,[1,1,2,3,5])
 	eval_not_in(3,[1,1,2,3,5])
 	eval_not_in(4,[1,1,2,3,5])
+	eval_attrib(list,"append")
+	eval_attrib(list(),"appends")
+	eval_not_attrib(list,"appends")
+	eval_not_attrib(list(),"append")
 
 
 @test

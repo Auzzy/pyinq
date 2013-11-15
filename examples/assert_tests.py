@@ -33,12 +33,12 @@ def test3():
 	assert_false(False)
 
 @test
-def test5():
+def test4():
+	assert_true(True)
 	assert_equal(8+"")
 
 @test
-def test4():
-	assert_true(True)
+def test5():
 	assert_equal(8+"")
 
 @test
@@ -104,3 +104,16 @@ def test17():
 def test18():
 	assert_true(True)
 	fail("Another test failure")
+
+@test
+def test19():
+	assert_attrib(list,"append")
+	assert_not_attrib(list(),"appends")
+
+@test
+def test20():
+	assert_attrib(list(),"appends")
+
+@test
+def test21():
+	assert_not_attrib(list(),"append")

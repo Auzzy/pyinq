@@ -1,0 +1,211 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>data &mdash; PyInq 0.2.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.2.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="author" title="About these documents" href="about.html" />
+    <link rel="top" title="PyInq 0.2.0 documentation" href="index.html" />
+    <link rel="up" title="Reference" href="reference.html" />
+    <link rel="next" title="results" href="results.html" />
+    <link rel="prev" title="asserts" href="asserts.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="results.html" title="results"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="asserts.html" title="asserts"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyInq 0.2.0 documentation</a> &raquo;</li>
+          <li><a href="reference.html" accesskey="U">Reference</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="data">
+<h1><tt class="xref py py-mod docutils literal"><span class="pre">data</span></tt><a class="headerlink" href="#data" title="Permalink to this headline">¶</a></h1>
+<p>PyInq represents each kind of test object, such as fixtures and tests, with its own class. In general, this doesn&#8217;t impact you, and this can be safely ignored. However, if you&#8217;re using the test discovery API, this information may be relevant.</p>
+<div class="section" id="fixtures">
+<h2>Fixtures<a class="headerlink" href="#fixtures" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="Fixture">
+<em class="property">class </em><tt class="descname">Fixture</tt><a class="headerlink" href="#Fixture" title="Permalink to this definition">¶</a></dt>
+<dd><p>The base class for all Fixture objects. It contains 3 fields: <tt class="docutils literal"><span class="pre">name</span></tt>, <tt class="docutils literal"><span class="pre">suite</span></tt>, and <tt class="docutils literal"><span class="pre">class_name</span></tt>. Their names are self-explanitory. Each field is either a string or <tt class="docutils literal"><span class="pre">None</span></tt>.You may also retrieve the function it represents through the read-only property <tt class="docutils literal"><span class="pre">func</span></tt>.</p>
+</dd></dl>
+
+<p>The preferred way to execute a fixture is by calling its corresponding <a class="reference internal" href="#Fixture" title="Fixture"><tt class="xref py py-class docutils literal"><span class="pre">Fixture</span></tt></a> object: the <tt class="docutils literal"><span class="pre">__call__</span></tt> function is overriden to make execution simple.</p>
+<dl class="class">
+<dt id="BeforeSuite">
+<em class="property">class </em><tt class="descname">BeforeSuite</tt><a class="headerlink" href="#BeforeSuite" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="BeforeModule">
+<em class="property">class </em><tt class="descname">BeforeModule</tt><a class="headerlink" href="#BeforeModule" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="BeforeClass">
+<em class="property">class </em><tt class="descname">BeforeClass</tt><a class="headerlink" href="#BeforeClass" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="Before">
+<em class="property">class </em><tt class="descname">Before</tt><a class="headerlink" href="#Before" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="After">
+<em class="property">class </em><tt class="descname">After</tt><a class="headerlink" href="#After" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="AfterClass">
+<em class="property">class </em><tt class="descname">AfterClass</tt><a class="headerlink" href="#AfterClass" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="AfterModule">
+<em class="property">class </em><tt class="descname">AfterModule</tt><a class="headerlink" href="#AfterModule" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="AfterSuite">
+<em class="property">class </em><tt class="descname">AfterSuite</tt><a class="headerlink" href="#AfterSuite" title="Permalink to this definition">¶</a></dt>
+<dd><p>Each class inherits from <a class="reference internal" href="#Fixture" title="Fixture"><tt class="xref py py-class docutils literal"><span class="pre">Fixture</span></tt></a> and represents a function tagged with the corresponding name.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="DoNothing">
+<em class="property">class </em><tt class="descname">DoNothing</tt><a class="headerlink" href="#DoNothing" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is also a <a class="reference internal" href="#Fixture" title="Fixture"><tt class="xref py py-class docutils literal"><span class="pre">Fixture</span></tt></a> object, but does not correspond to a tag. Instead, it indicates that a particular fixture has not been set. Thus, it corresponds to no function, and when it is called, nothing is run. This is the default value for an unset fixture, and its truth-value is <tt class="docutils literal"><span class="pre">False</span></tt>. As such, testing the truth-value is the preferred method of detecting an unset fixture.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="test-objects">
+<h2>Test Objects<a class="headerlink" href="#test-objects" title="Permalink to this headline">¶</a></h2>
+<p>All the objects below contains 3 fields: <tt class="docutils literal"><span class="pre">name</span></tt>, <tt class="docutils literal"><span class="pre">before</span></tt>, and <tt class="docutils literal"><span class="pre">after</span></tt>. <tt class="docutils literal"><span class="pre">name</span></tt> is the structure&#8217;s name as a string, or <tt class="docutils literal"><span class="pre">None</span></tt> if it is a default structure. <tt class="docutils literal"><span class="pre">before</span></tt> and <tt class="docutils literal"><span class="pre">after</span></tt> contain the structure&#8217;s before and after fixtures as one of the objects defined above. Both default to <a class="reference internal" href="#DoNothing" title="DoNothing"><tt class="xref py py-class docutils literal"><span class="pre">DoNothing</span></tt></a> if an object is not provided.</p>
+<p>Each object (except for <a class="reference internal" href="#TestData" title="TestData"><tt class="xref py py-class docutils literal"><span class="pre">TestData</span></tt></a>) is a sequence object. They should only conatin objects from the level directly below it. That is, <a class="reference internal" href="#TestSuiteData" title="TestSuiteData"><tt class="xref py py-class docutils literal"><span class="pre">TestSuiteData</span></tt></a> should only contain <a class="reference internal" href="#TestModuleData" title="TestModuleData"><tt class="xref py py-class docutils literal"><span class="pre">TestModuleData</span></tt></a> objects, and so on.</p>
+<p>Each object also overrides <tt class="docutils literal"><span class="pre">__call__</span></tt>. Calling a structure will run the corresponding &#8220;before&#8221; fixture, followed by all contained structures, and finally the appropriate &#8220;after&#8221; function. All results are wrapped up into a results object and returned to the caller.</p>
+<dl class="class">
+<dt id="TestSuiteData">
+<em class="property">class </em><tt class="descname">TestSuiteData</tt><a class="headerlink" href="#TestSuiteData" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="TestModuleData">
+<em class="property">class </em><tt class="descname">TestModuleData</tt><a class="headerlink" href="#TestModuleData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Both of these currently contain only the base data. More will be added to <tt class="docutils literal"><span class="pre">TestModuleData</span></tt> moving forward, such as the path to the correspoinding module.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="TestClassData">
+<em class="property">class </em><tt class="descname">TestClassData</tt><a class="headerlink" href="#TestClassData" title="Permalink to this definition">¶</a></dt>
+<dd><p>To access a class&#8217;s suite, you can use the <tt class="docutils literal"><span class="pre">suite</span></tt> field. If this class is not part of a suite, this value will be <tt class="docutils literal"><span class="pre">None</span></tt>.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="TestData">
+<em class="property">class </em><tt class="descname">TestData</tt><a class="headerlink" href="#TestData" title="Permalink to this definition">¶</a></dt>
+<dd><p>To access a function&#8217;s suite, you can use the <tt class="docutils literal"><span class="pre">suite</span></tt> field. If this function is not part of a suite, this value will be <tt class="docutils literal"><span class="pre">None</span></tt>.</p>
+<p>Additionally, you can access the test function that this object represents by using the read-only property <tt class="docutils literal"><span class="pre">test</span></tt>. However, it is <strong>highly</strong> recommended you run the object normally (as a callable object). The runner not only handles executing fixtures and producing a results object, but also ensures any raised exceptions are properly dealt with in the context of the framework. Thus, manually calling the test funciton negates much of the benefit of using PyInq. That being said, nothing is in place to stop you. Just know you are doing so at your own risk.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><tt class="docutils literal"><span class="pre">data</span></tt></a><ul>
+<li><a class="reference internal" href="#fixtures">Fixtures</a></li>
+<li><a class="reference internal" href="#test-objects">Test Objects</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="asserts.html"
+                        title="previous chapter"><tt class="docutils literal docutils literal docutils literal"><span class="pre">asserts</span></tt></a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="results.html"
+                        title="next chapter"><tt class="docutils literal"><span class="pre">results</span></tt></a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/data.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="results.html" title="results"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="asserts.html" title="asserts"
+             >previous</a> |</li>
+        <li><a href="index.html">PyInq 0.2.0 documentation</a> &raquo;</li>
+          <li><a href="reference.html" >Reference</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Austin Noto-Moniz.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

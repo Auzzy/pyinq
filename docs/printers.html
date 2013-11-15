@@ -1,0 +1,187 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>printers &mdash; PyInq 0.2.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.2.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="author" title="About these documents" href="about.html" />
+    <link rel="top" title="PyInq 0.2.0 documentation" href="index.html" />
+    <link rel="up" title="Reference" href="reference.html" />
+    <link rel="prev" title="results" href="results.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="results.html" title="results"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyInq 0.2.0 documentation</a> &raquo;</li>
+          <li><a href="reference.html" accesskey="U">Reference</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="printers">
+<h1><tt class="xref py py-mod docutils literal"><span class="pre">printers</span></tt><a class="headerlink" href="#printers" title="Permalink to this headline">¶</a></h1>
+<p>PyInq includes a couple default printers, as well as some functions for interacting with them, and the ability to create your own.</p>
+<p>Note that the printer infrastructure will be getting a bit of an overhaul in order to make it easier to use, cleaner, and more flexible. Thus, if the module cannot currently handle your needs, check back later. In the mean time, you can write a custom one using the <a class="reference internal" href="discovery.html#discovery-api"><em>Test Discovery API</em></a>.</p>
+<dl class="function">
+<dt id="get_default">
+<tt class="descname">get_default</tt><big>(</big><big>)</big><a class="headerlink" href="#get_default" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves the module that PyInq uses as its default.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="print_report">
+<tt class="descname">print_report</tt><big>(</big><em>result</em>, <em>printer=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#print_report" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prints a report on the given result object using the provided printer and arguments.</p>
+</dd></dl>
+
+<p><tt class="docutils literal"><span class="pre">result</span></tt> must be a <a class="reference internal" href="results.html#TestSuiteResult" title="TestSuiteResult"><tt class="xref py py-class docutils literal"><span class="pre">TestSuiteResult</span></tt></a> object. The behavior if it&#8217;s not is undefined. This requirement will be changed to any result object in upcoming versions.</p>
+<p><tt class="docutils literal"><span class="pre">printer</span></tt> must be a module or package that can load a class named <tt class="docutils literal"><span class="pre">Printer</span></tt>. The <tt class="docutils literal"><span class="pre">Printer</span></tt> class defines the actual output formats by subclassing <a class="reference internal" href="#AbstractPrinter" title="AbstractPrinter"><tt class="xref py py-class docutils literal"><span class="pre">AbstractPrinter</span></tt></a>, while this function defines the order of output. Again, this limitation will be relaxed in upcoming versions.</p>
+<p><tt class="docutils literal"><span class="pre">kwargs</span></tt> allows arguments specifi to the given printer to be passed through.</p>
+<div class="section" id="abstractprinter">
+<h2>AbstractPrinter<a class="headerlink" href="#abstractprinter" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="AbstractPrinter">
+<em class="property">class </em><tt class="descname">AbstractPrinter</tt><big>(</big><em>**kwargs</em><big>)</big><a class="headerlink" href="#AbstractPrinter" title="Permalink to this definition">¶</a></dt>
+<dd><p>This forms the base of any printer. It provides the methods necessary for the <a class="reference internal" href="#print_report" title="print_report"><tt class="xref py py-func docutils literal"><span class="pre">print_report()</span></tt></a> method to properly operate. <tt class="docutils literal"><span class="pre">kwargs</span></tt> allows any subprinter to easily accept arguments. If your printer does not require any arguments, you may simply omit the constructor.</p>
+</dd></dl>
+
+<p>Each of the following methods must be implemented by your printer. Failure to do so will result in a <tt class="xref py py-class docutils literal"><span class="pre">NotImplementedError</span></tt>.</p>
+<dl class="function">
+<dt id="title">
+<tt class="descname">title</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#title" title="Permalink to this definition">¶</a></dt>
+<dd><p>Format and print the name of this report.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="section">
+<tt class="descname">section</tt><big>(</big><em>label</em>, <em>name</em>, <em>nl</em><big>)</big><a class="headerlink" href="#section" title="Permalink to this definition">¶</a></dt>
+<dd><p>Format and print the name of a section. <tt class="docutils literal"><span class="pre">label</span></tt> is a string which classifies <tt class="docutils literal"><span class="pre">name</span></tt>, eg &#8220;Module&#8221;, &#8220;Class&#8221;. <tt class="docutils literal"><span class="pre">nl</span></tt> is a bool which signifies this output string should conclude with a newline.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="log_test">
+<tt class="descname">log_test</tt><big>(</big><em>label</em>, <em>result</em><big>)</big><a class="headerlink" href="#log_test" title="Permalink to this definition">¶</a></dt>
+<dd><p>Format amd print the given result of a single assert. <tt class="docutils literal"><span class="pre">label</span></tt> is a string which classifies the result, eg &#8220;Test&#8221;.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="log_fixture">
+<tt class="descname">log_fixture</tt><big>(</big><em>label</em>, <em>result</em><big>)</big><a class="headerlink" href="#log_fixture" title="Permalink to this definition">¶</a></dt>
+<dd><p>Format amd print the given result of a ficture. <tt class="docutils literal"><span class="pre">label</span></tt> is a string which classifies result, eg &#8220;Before Class&#8221;, &#8220;After Class&#8221;.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="cleanup">
+<tt class="descname">cleanup</tt><big>(</big><big>)</big><a class="headerlink" href="#cleanup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run at the end of the report. Performs any actions needed to reset the system.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="id1">
+<h2>Printers<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p>The built-in printer modules.</p>
+<div class="section" id="command-line-cli-printers-cli">
+<h3>Command Line (CLI): <tt class="xref py py-mod docutils literal"><span class="pre">printers.cli</span></tt><a class="headerlink" href="#command-line-cli-printers-cli" title="Permalink to this headline">¶</a></h3>
+<p>The default printer. This is actually a package of 3 printers selected based on the environment in which the test is running. The goal is to produce color output to the command line. In the standard Windows console, this should always work. In Linux, it will only work in bash, due to the obnoxious method I had to use of coloring via character control codes. No matter the environment, if it is detected that I can&#8217;t output in color, then I output in the same format, but black and white.</p>
+<p>I intend to rework these using third-party modules such that color will work on Windows, Linux, and Mac, but haven&#8217;t gotten around to it yet.</p>
+</div>
+<div class="section" id="html-printers-html">
+<h3>HTML: <tt class="xref py py-mod docutils literal"><span class="pre">printers.html</span></tt><a class="headerlink" href="#html-printers-html" title="Permalink to this headline">¶</a></h3>
+<p>Outputs to a file in HTML. Nothing is written to stdout except a success message that also prints the location the file was written to.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><tt class="docutils literal"><span class="pre">printers</span></tt></a><ul>
+<li><a class="reference internal" href="#abstractprinter">AbstractPrinter</a></li>
+<li><a class="reference internal" href="#id1">Printers</a><ul>
+<li><a class="reference internal" href="#command-line-cli-printers-cli">Command Line (CLI): <tt class="docutils literal"><span class="pre">printers.cli</span></tt></a></li>
+<li><a class="reference internal" href="#html-printers-html">HTML: <tt class="docutils literal"><span class="pre">printers.html</span></tt></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="results.html"
+                        title="previous chapter"><tt class="docutils literal docutils literal"><span class="pre">results</span></tt></a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/printers.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="results.html" title="results"
+             >previous</a> |</li>
+        <li><a href="index.html">PyInq 0.2.0 documentation</a> &raquo;</li>
+          <li><a href="reference.html" >Reference</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Austin Noto-Moniz.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

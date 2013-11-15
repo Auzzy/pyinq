@@ -1,0 +1,280 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>2. Test Discovery &mdash; PyInq 0.2.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.2.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="author" title="About these documents" href="about.html" />
+    <link rel="top" title="PyInq 0.2.0 documentation" href="index.html" />
+    <link rel="up" title="Advanced" href="advanced.html" />
+    <link rel="next" title="3. Running PyInq" href="execution.html" />
+    <link rel="prev" title="1. Writing Better Tests" href="bettertests.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="execution.html" title="3. Running PyInq"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="bettertests.html" title="1. Writing Better Tests"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyInq 0.2.0 documentation</a> &raquo;</li>
+          <li><a href="advanced.html" accesskey="U">Advanced</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="test-discovery">
+<span id="discovery"></span><h1>2. Test Discovery<a class="headerlink" href="#test-discovery" title="Permalink to this headline">¶</a></h1>
+<p>When testing a large project, organization is key. Grouping related tests is a faily common-sense approach, which PyInq lets you do through <a class="reference internal" href="bettertests.html#test-classes"><em>test classes</em></a> and <a class="reference internal" href="bettertests.html#test-suites"><em>test suites</em></a>. Additionally, you can create multiple test files. This is a common practice, and often the test directory is constructed to mirror your source directory. Each test file corresponds to a source file, and each test directory corresponds to a source directory.</p>
+<p>Following this convention, your test directory will look something like this:</p>
+<div class="highlight-python"><pre>test_dir/
+        test_foo.py
+        test_bar.py
+        baz/
+                __init__.py
+                test_food_bar.py
+                test_bar_food.py</pre>
+</div>
+<p>While this is great for organizational purposes, it raises one <em>big</em> hurdle: you must run your test files individually. You could write a script of your own to do this for you, but you&#8217;d have to keep updating it. You could write a script to discover and execute all your tests for you, but that seems like it&#8217;s something you shouldn&#8217;t have to do.</p>
+<p>And I agree.</p>
+<div class="section" id="discovering-tests">
+<h2>2.1. Discovering Tests<a class="headerlink" href="#discovering-tests" title="Permalink to this headline">¶</a></h2>
+<p>Running each test in the above directory is made very simple with test discovery:</p>
+<div class="highlight-python"><pre>python -m pyinq discover test_dir</pre>
+</div>
+<p>The <tt class="docutils literal"><span class="pre">discover</span></tt> keyword is what invokes test discovery, and the next argument tells PyInq where to find the root test directory. This path can be either relative or absolute. If you want to treat the current folder as the test root, make this argument <tt class="docutils literal"><span class="pre">.</span></tt>.</p>
+<p>You may also specify the filename pattern and output format. For a more detailed discussion of these options, see <a class="reference internal" href="execution.html#execute-discovery"><em>Test Discovery</em></a>.</p>
+</div>
+<div class="section" id="how-does-it-work">
+<h2>2.2. How does it work?<a class="headerlink" href="#how-does-it-work" title="Permalink to this headline">¶</a></h2>
+<p>It&#8217;s magic!</p>
+<p>Okay, not really. However, it <em>is</em> magic in the sense that all you must do is ensure any subfolders are valid Python packages, which should be the case anyways. Remember, all that means is that the folder has a file called <tt class="docutils literal"><span class="pre">__init__.py</span></tt>, which will often be empty. That&#8217;s it. There is no directive, line of code, or anything you must add to your tests to make them discoverable.</p>
+<p>When you run test discovery, PyInq searches the provided test directory for PyInq tests and loads them <a class="footnote-reference" href="#id2" id="id1">[1]</a>. If it encounters a directory which appears to be a Python package, it will also search that directory for tests. If it doesn&#8217;t appear to be a Python package, it will be skipped. Once this process completes, all discovered tests are executed. As with executing an individual file, the order of execution is undefined, so all tests should be independent. And of course, a report on all the test results is provided.</p>
+<table class="docutils footnote" frame="void" id="id2" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>PyInq imports any file matching the provided pattern (or all files if no pattern is provided), registering any tests it finds. Thus, any code not within a class or function will run at that time. For this reason, it is recommended (but not required) that you avoid code outside of classes and functions.</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="test-discovery-api">
+<span id="discovery-api"></span><h2>2.3. Test Discovery API<a class="headerlink" href="#test-discovery-api" title="Permalink to this headline">¶</a></h2>
+<p>PyInq provides an API enabling you to programmatically gather tests. It returns an object representing the suite of tests found, which you may either run or inspect for more information. Running it returns an object representing the result of each test executed, which you may either pass to a printer object for output and formatting or inspect for more information.</p>
+<p>This is more or less how PyInq performs test discovery:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyinq</span> <span class="kn">import</span> <span class="n">discover_tests</span><span class="p">,</span> <span class="n">printers</span>
+
+<span class="k">if</span> <span class="n">__name__</span><span class="o">==</span><span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+        <span class="n">suite</span> <span class="o">=</span> <span class="n">discover_tests</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">pattern</span><span class="p">,</span> <span class="n">suite_name</span><span class="p">)</span>
+        <span class="n">report</span> <span class="o">=</span> <span class="n">suite</span><span class="p">()</span>
+        <span class="n">printers</span><span class="o">.</span><span class="n">print_report</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="n">printers</span><span class="o">.</span><span class="n">cli</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This breaks down into 3 main tasks, as can be seen from the 3 separate function calls. Let&#8217;s walk through what&#8217;s going on in the above code.</p>
+<div class="section" id="retrieving-a-test-suite">
+<h3>2.3.1. Retrieving a test suite<a class="headerlink" href="#retrieving-a-test-suite" title="Permalink to this headline">¶</a></h3>
+<p>The first step is to retrieve the desired tests. This is encapsulated in the <tt class="docutils literal"><span class="pre">discover_tests</span></tt> function. It takes the same arguments as the command line version. Each argument is optional. Omitting the root will start discovery in the current working directory, omitting the pattern will match all PyInq test files, and omitting the suite name will grab all PyInq tests.</p>
+<p>In PyInq, tests have a clear heirarchy:</p>
+<div class="highlight-python"><pre>suites
+    modules
+        classes
+            tests</pre>
+</div>
+<p>As such, the objects that represent these structures also have a clear heirarchy:</p>
+<div class="highlight-python"><pre>TestSuiteData
+    TestModuleData
+        TestClassData
+            TestData</pre>
+</div>
+<p>Each object contains some data about the structure it represents, such as its name and any associated fixtures. It also consists of a list of objects from the level below (except for <a class="reference internal" href="data.html#TestData" title="TestData"><tt class="xref py py-class docutils literal"><span class="pre">TestData</span></tt></a>). That is, a <a class="reference internal" href="data.html#TestSuiteData" title="TestSuiteData"><tt class="xref py py-class docutils literal"><span class="pre">TestSuiteData</span></tt></a> object is a list of <a class="reference internal" href="data.html#TestModuleData" title="TestModuleData"><tt class="xref py py-class docutils literal"><span class="pre">TestModuleData</span></tt></a> objects, and so on. In this way, information about your test structure is preserved, allowing you more flexibility in how you handle these tests. The <em class="xref std std-ref">discover_tests</em> function will always return a <a class="reference internal" href="data.html#TestSuiteData" title="TestSuiteData"><tt class="xref py py-class docutils literal"><span class="pre">TestSuiteData</span></tt></a> object.</p>
+<p>Note that internally, PyInq always creates this heirarchy, even if you didn&#8217;t use these structures. For example, you may have a test module that contains a bunch of tests, some of which are <em>not</em> in classes. Internally, those tests are gathered into a single, nameless class. That class&#8217;s <tt class="docutils literal"><span class="pre">name</span></tt> field will be <tt class="docutils literal"><span class="pre">None</span></tt> to reflect this fact. The same is true for tests that aren&#8217;t placed in any explicit test suite. They are pulled into the default test suite, which has a name of <tt class="docutils literal"><span class="pre">None</span></tt>.</p>
+<p>This makes for greater consistency and eases execution and report handling. Also, leaving the <tt class="docutils literal"><span class="pre">name</span></tt> field with a value of <tt class="docutils literal"><span class="pre">None</span></tt> allows auto-generated structures to be easily distinguished from your defined structures. Finally, it allows <tt class="docutils literal"><span class="pre">discover_tests</span></tt> to always safely return a <a class="reference internal" href="data.html#TestSuiteData" title="TestSuiteData"><tt class="xref py py-class docutils literal"><span class="pre">TestSuiteData</span></tt></a> object.</p>
+</div>
+<div class="section" id="running-a-test-suite">
+<h3>2.3.2. Running a test suite<a class="headerlink" href="#running-a-test-suite" title="Permalink to this headline">¶</a></h3>
+<p>Checking that the test suite is not empty is unncessary, as PyInq will not complain. But if you do wish to check, remember that each object is just a list. Thus, Python&#8217;s truth value check still works, as does explicitly checking its length.</p>
+<p>All data objects are callable, meaning that running it is done by invoking it as you would a function. In the above code snippet, this is done by the following line:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">report</span> <span class="o">=</span> <span class="n">suite</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This will cause all fixtures and tests contained in the heirarchy to be executed. Running the top-level <a class="reference internal" href="data.html#TestSuiteData" title="TestSuiteData"><tt class="xref py py-class docutils literal"><span class="pre">TestSuiteData</span></tt></a> object will return a <a class="reference internal" href="results.html#TestSuiteResult" title="TestSuiteResult"><tt class="xref py py-class docutils literal"><span class="pre">TestSuiteResult</span></tt></a> object, which contains information on the executed tests. The information is maintained in the same heirarchical fashion in which it was consumed. There will be a 1:1 mapping from data objects to test result objects.</p>
+<div class="section" id="manually-executing-a-suite">
+<h4>Manually executing a suite<a class="headerlink" href="#manually-executing-a-suite" title="Permalink to this headline">¶</a></h4>
+<p>Although the example shows a suite, any data object may be executed. For example, if you had a <a class="reference internal" href="data.html#TestSuiteData" title="TestSuiteData"><tt class="xref py py-class docutils literal"><span class="pre">TestSuiteData</span></tt></a> object <tt class="docutils literal"><span class="pre">suite</span></tt> and wanted to manually run each module, but not the suite itself:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">results</span> <span class="o">=</span> <span class="p">[</span><span class="n">module</span><span class="p">()</span> <span class="k">for</span> <span class="n">module</span> <span class="ow">in</span> <span class="n">suite</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>This will produce a list of <a class="reference internal" href="results.html#TestModuleResult" title="TestModuleResult"><tt class="xref py py-class docutils literal"><span class="pre">TestModuleResult</span></tt></a> objects. The fixtures associated with each module will be run, as will all contained test structures. Note that the suite&#8217;s fixtures <strong>will NOT be run</strong>. Thus, tests that rely on those fixtures will likely behave unexpectedly. In order to manually run the fixtures properly, a little more work is needed:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">pyinq.runner</span> <span class="kn">as</span> <span class="nn">runner</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">before_result</span><span class="p">,</span><span class="n">halt</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">run_fixture</span><span class="p">(</span><span class="n">suite</span><span class="o">.</span><span class="n">before</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">halt</span><span class="p">:</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[</span><span class="n">module</span><span class="p">()</span> <span class="k">for</span> <span class="n">module</span> <span class="ow">in</span> <span class="n">suite</span><span class="p">]</span>
+<span class="n">after_result</span><span class="p">,</span><span class="n">halt</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">run_fixture</span><span class="p">(</span><span class="n">suite</span><span class="o">.</span><span class="n">after</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note the use of the special method <tt class="docutils literal"><span class="pre">run_fixture</span></tt>. It is used for a few reasons. First off, it allows proper handling of any errors or asserts that may appear in a fixture. This includes returning a report on the success of any included asserts. Secondly, it allows the fixture to signal the test to stop, such as in the case of a failed assert.</p>
+<p>I&#8217;ve realized this process is a bit uglier than necessary. As such, although I don&#8217;t expect this to be a common use-case, I plan to clean it up in coming versions.</p>
+</div>
+<div class="section" id="manually-processing-a-suite">
+<h4>Manually processing a suite<a class="headerlink" href="#manually-processing-a-suite" title="Permalink to this headline">¶</a></h4>
+<p>Another reason for manually iterating through suites in a test is gathering the included information. For example, you may just want to print out a snapshot of the gathered tests before running them. Take this example, where the structure of the discovered tests is printed out, along with the structure&#8217;s name and suite:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyinq</span> <span class="kn">import</span> <span class="n">discover_tests</span>
+
+<span class="k">if</span> <span class="n">__name__</span><span class="o">==</span><span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+        <span class="n">suite</span> <span class="o">=</span> <span class="n">discover_tests</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+        <span class="k">print</span> <span class="s">&quot;SUITE: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">suite</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">module</span> <span class="ow">in</span> <span class="n">suite</span><span class="p">:</span>
+                <span class="k">print</span> <span class="s">&quot;</span><span class="se">\t</span><span class="s">MODULE: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">module</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">cls</span> <span class="ow">in</span> <span class="n">module</span><span class="p">:</span>
+                        <span class="k">print</span> <span class="s">&quot;</span><span class="se">\t\t</span><span class="s">CLASS: {cls.name} (SUITE: {cls.suite})&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cls</span><span class="o">=</span><span class="n">cls</span><span class="p">)</span>
+                        <span class="k">for</span> <span class="n">test</span> <span class="ow">in</span> <span class="n">cls</span><span class="p">:</span>
+                                <span class="k">print</span> <span class="s">&quot;</span><span class="se">\t\t\t</span><span class="s">TEST: {test.name} (SUITE: {test.suite})&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">test</span><span class="o">=</span><span class="n">test</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note that this snippet does not actually run the tests, but merely demonstrates inspecting them.</p>
+</div>
+</div>
+<div class="section" id="printing-a-report">
+<h3>2.3.3. Printing a report<a class="headerlink" href="#printing-a-report" title="Permalink to this headline">¶</a></h3>
+<p>Running your tests will produce a test results object (such as <a class="reference internal" href="results.html#TestSuiteResult" title="TestSuiteResult"><tt class="xref py py-class docutils literal"><span class="pre">TestSuiteResult</span></tt></a>) which contains the result of each assert or eval within each executed test. As with the data objects, these objects may be fed into functions predefined by PyInq, or you may pick them apart on your own. As with the data objects, the test result objects are lists, and thus can be iterated over.</p>
+<p>Of course, using predefined printers is the easiest:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">pyinq</span> <span class="kn">import</span> <span class="n">printers</span>
+
+<span class="n">printers</span><span class="o">.</span><span class="n">print_report</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="n">printers</span><span class="o">.</span><span class="n">cli</span><span class="o">.</span><span class="n">default</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This will print the report to the command line using the <tt class="docutils literal"><span class="pre">Printer</span></tt> class contained within the <tt class="docutils literal"><span class="pre">printers.cli.default</span></tt> module. You can also define printers to be a bit more clever using packages and the <tt class="docutils literal"><span class="pre">__init__.py</span></tt> file. For example, the printer used in our original example (<tt class="docutils literal"><span class="pre">printers.cli</span></tt>) is actually a package that attempts to select a printer based off the system detected so that it can display the output in color. The only requirement is that the provided namespace contains a class called <tt class="docutils literal"><span class="pre">Printer</span></tt> which inherits from <a class="reference internal" href="printers.html#AbstractPrinter" title="AbstractPrinter"><tt class="xref py py-class docutils literal"><span class="pre">AbstractPrinter</span></tt></a>.</p>
+<div class="section" id="constructing-your-own-printer">
+<h4>Constructing your own printer<a class="headerlink" href="#constructing-your-own-printer" title="Permalink to this headline">¶</a></h4>
+<p>If one of the included printers doesn&#8217;t meet your needs, you may wish to write your own. To do so, create a class that subclasses the abstract class <a class="reference internal" href="printers.html#AbstractPrinter" title="AbstractPrinter"><tt class="xref py py-class docutils literal"><span class="pre">AbstractPrinter</span></tt></a>. For now, this class must be called &#8220;Printer&#8221; to be recognized, but that will change in coming versions.</p>
+<p>There are 4 functions to implement: <tt class="docutils literal"><span class="pre">title</span></tt>, to format the report banner;  <tt class="docutils literal"><span class="pre">section</span></tt>, to format the name of each section (module name, class name, etc); <tt class="docutils literal"><span class="pre">log_test</span></tt>, to log the test results; and <tt class="docutils literal"><span class="pre">log_fixture</span></tt>, to log the fixture results. There is also an optional <tt class="docutils literal"><span class="pre">cleanup</span></tt> function if your printer needs to perform any operations upon exiting.</p>
+<p>To use your printer, pass the module that contains it to the <tt class="docutils literal"><span class="pre">pyinq.printers.print_report</span></tt> function, and PyInq will handle the rest!</p>
+</div>
+<div class="section" id="manually-printing-a-report">
+<h4>Manually printing a report<a class="headerlink" href="#manually-printing-a-report" title="Permalink to this headline">¶</a></h4>
+<p>It is possible that the default structure does not fit your needs, in which case you are left with the option to manually inspect the test results objects.</p>
+<p>As with the data objects (discussed above), test results objects are organized into a heirarchy. When you execute a data object, you will always be given back a test results object of the corresponding type:</p>
+<div class="highlight-python"><pre>TestSuiteData   -&gt; TestSuiteResult
+TestModuleData  -&gt; TestModuleResult
+TestClassData   -&gt; TestClassResult
+TestData        -&gt; TestResult</pre>
+</div>
+<p>As mentioned above, each of these 4 classes is a list of result objects. Each result object represents the result of a single assert. All these results combine to form the outcome of the test. The outcome can be determined by calling <tt class="docutils literal"><span class="pre">get_status</span></tt>. Note that this method can return 3 different values: <tt class="xref py py-const docutils literal"><span class="pre">True</span></tt> if the test passed; <tt class="xref py py-const docutils literal"><span class="pre">False</span></tt> if the test failed; or <tt class="xref py py-const docutils literal"><span class="pre">None</span></tt> if an unexpected error occurred. All errors not explicitly set as expected (either through the <a class="reference internal" href="tags.html#test" title="test"><tt class="xref py py-func docutils literal"><span class="pre">test()</span></tt></a> annotation or <tt class="docutils literal"><span class="pre">assert_raises</span></tt> function) are considered unexpected.</p>
+<p>These test result objects contain 3 fields. The <tt class="docutils literal"><span class="pre">name</span></tt> field contains the name of the test method. The other 2 fields, <tt class="docutils literal"><span class="pre">before</span></tt> and <tt class="docutils literal"><span class="pre">after</span></tt>, contain the result of the before and after fixtures at the given level. A value of <tt class="xref py py-const docutils literal"><span class="pre">None</span></tt> for either indicates that fixture was not defined by the user.</p>
+<p>Remember that each test result object is a list of assert result objects. These assert result objects are what contain the actual data pertaining to the outcome of a single assert statement. In the most common use case, you will use the object&#8217;s <tt class="docutils literal"><span class="pre">result</span></tt> field to determine the outcome of the assert, and then call <tt class="xref py py-func docutils literal"><span class="pre">str()</span></tt> to obtain (and print) a nicely formatted string with more details.</p>
+<p>Of course, you also have access to these details for each assert result object. Along with <tt class="docutils literal"><span class="pre">result</span></tt>, all <a class="reference internal" href="results.html#AssertResult" title="AssertResult"><tt class="xref py py-class docutils literal"><span class="pre">AssertResult</span></tt></a> objects also contain the line number of the assert (<tt class="docutils literal"><span class="pre">lineno</span></tt>) and the actual text of the assert (<tt class="docutils literal"><span class="pre">call</span></tt>). Each subtype has its own values specific to its assert.</p>
+<p>All of these classes, and more information about them, are available in the <tt class="xref py py-mod docutils literal"><span class="pre">results</span></tt> module.</p>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">2. Test Discovery</a><ul>
+<li><a class="reference internal" href="#discovering-tests">2.1. Discovering Tests</a></li>
+<li><a class="reference internal" href="#how-does-it-work">2.2. How does it work?</a></li>
+<li><a class="reference internal" href="#test-discovery-api">2.3. Test Discovery API</a><ul>
+<li><a class="reference internal" href="#retrieving-a-test-suite">2.3.1. Retrieving a test suite</a></li>
+<li><a class="reference internal" href="#running-a-test-suite">2.3.2. Running a test suite</a><ul>
+<li><a class="reference internal" href="#manually-executing-a-suite">Manually executing a suite</a></li>
+<li><a class="reference internal" href="#manually-processing-a-suite">Manually processing a suite</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#printing-a-report">2.3.3. Printing a report</a><ul>
+<li><a class="reference internal" href="#constructing-your-own-printer">Constructing your own printer</a></li>
+<li><a class="reference internal" href="#manually-printing-a-report">Manually printing a report</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="bettertests.html"
+                        title="previous chapter">1. Writing Better Tests</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="execution.html"
+                        title="next chapter">3. Running PyInq</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/discovery.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="execution.html" title="3. Running PyInq"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="bettertests.html" title="1. Writing Better Tests"
+             >previous</a> |</li>
+        <li><a href="index.html">PyInq 0.2.0 documentation</a> &raquo;</li>
+          <li><a href="advanced.html" >Advanced</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Austin Noto-Moniz.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

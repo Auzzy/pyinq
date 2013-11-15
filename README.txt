@@ -3,6 +3,8 @@
 PyInq
 =====
 
+*Find the Spanish translation of this page here:* http://www.webhostinghub.com/support/es/misc/estructura-de-pruebas-pyinq
+
 PyInq is a Python unit testing framework created in the tradition of the xUnit family. Specifically, it draws its influence from JUnit and PyUnit (unittest).
 
 The bulk of PyInq's functionality was influenced by PyUnit. However, Java coders will recogize the use of decorators for test identification from JUnit 4. Selenium users will recogize PyInq's suite of "eval" functions; they were influenced by Selenium's "verify" functions.
@@ -42,11 +44,10 @@ Coming soon
 
 Documentation
 -------------
-I have not yet had the chance to write up much documentation. It's high on my TODO list as undocumented projects can be aggrevating to work with. I intend to produce a basic guide to using PyInq, as well as code comments and docstrings.
+Formal documentation is finally complete! It is both included in the package itself, and present on PyPI at `http://pythonhosted.org/PyInq/ <http://pythonhosted.org/PyInq/>`. From now on, I'll be keeping this up to date as needed.
 
-For now, there is basic documentation in the download. In the docs folder, there is a file called "reference.txt". This assumes knowledge of unit test frameworks, and serves as a basic reference for what PyInq includes, and how to use it. The other is a directory called examples, which contains a number of tests that exercise various aspects of PyInq. I've tried to name them in a straightforward manner to enable them to giude your usage of this package.
+Let me know your thoughts! If you find any issues with it, feel free to email me, and I'll fix it asap.
 
-Additionally, I've included a section on test discovery and some basic examples below.
 
 ##############
 Basic Examples

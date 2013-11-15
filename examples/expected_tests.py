@@ -2,15 +2,16 @@ from pyinq.tags import *
 from pyinq.asserts import *
 import mod
 
-@test(expected=ValueError)
+@test(expect=ValueError)
 def test1():
 	mod.parse("hjhwr")
+	assert_true(True)
 
-@test(expected=WindowsError)
+@test(expect=WindowsError)
 def test2():
 	mod.parse("hjhwr")
 
-@test(expected=ValueError)
+@test(expect=ValueError)
 def test3():
 	parse("4")
 

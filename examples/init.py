@@ -8,10 +8,10 @@ class Class1:
 
 	@test
 	def test1():
-		assert_equal(this.num,4)
-		this.num += 1
+		assert_equal(self.num,4)
+		self.num += 1
 	
 	@test
 	def test2():
-		assert_equal(this.num,4)
-		this.num += 1
+		assert_equal(self.num,4)
+		self.num += 1

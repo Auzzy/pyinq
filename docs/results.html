@@ -1,0 +1,253 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>results &mdash; PyInq 0.2.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.2.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="author" title="About these documents" href="about.html" />
+    <link rel="top" title="PyInq 0.2.0 documentation" href="index.html" />
+    <link rel="up" title="Reference" href="reference.html" />
+    <link rel="next" title="printers" href="printers.html" />
+    <link rel="prev" title="data" href="data.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="printers.html" title="printers"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="data.html" title="data"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PyInq 0.2.0 documentation</a> &raquo;</li>
+          <li><a href="reference.html" accesskey="U">Reference</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="results">
+<h1><tt class="xref py py-mod docutils literal"><span class="pre">results</span></tt><a class="headerlink" href="#results" title="Permalink to this headline">¶</a></h1>
+<p>When a test is run, the results are output in a highly structured heirarchy. The heirarchy reflects the structure of the tests. Thus, there is a separate test result object for each suite, module, class, and test function. The heirachy of these objects is as expected: modules in suites, classes in modules, and tests in classes.</p>
+<p>There is also an individual assert result object for each assert/eval function, which is contained within its corresponding test result object. The specific type of assert result object depends on which specific assert/eval function was called.</p>
+<div class="section" id="assert-result-objects">
+<h2>Assert Result Objects<a class="headerlink" href="#assert-result-objects" title="Permalink to this headline">¶</a></h2>
+<p>The following assert result objects form the base of all assert result objects.</p>
+<dl class="class">
+<dt id="Result">
+<em class="property">class </em><tt class="descname">Result</tt><big>(</big><em>result</em><big>)</big><a class="headerlink" href="#Result" title="Permalink to this definition">¶</a></dt>
+<dd><p>The base object for all assert result objects.</p>
+<p><tt class="docutils literal"><span class="pre">result</span></tt> should be the raw value returned from the comparison function. It will be converted into a three-state variable indicating success: <tt class="xref py py-const docutils literal"><span class="pre">True</span></tt> for pass, <tt class="xref py py-const docutils literal"><span class="pre">False</span></tt> for fail, and <tt class="xref py py-const docutils literal"><span class="pre">None</span></tt> for an unepxected error. This allows an intervening assert result object acces to the return value of a comparison function that doesn&#8217;t return a boolean.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="AssertResult">
+<em class="property">class </em><tt class="descname">AssertResult</tt><big>(</big><em>lineno</em>, <em>call</em>, <em>result</em><big>)</big><a class="headerlink" href="#AssertResult" title="Permalink to this definition">¶</a></dt>
+<dd><p>The base for all assert calls. Along with the result of the call, any subclass must provide the line number the call appeared on, as well as the actial call itself.</p>
+</dd></dl>
+
+<p>The following assert result objects are actually raised, and subclass <a class="reference internal" href="#AssertResult" title="AssertResult"><tt class="xref py py-class docutils literal"><span class="pre">AssertResult</span></tt></a>. All of them override their calls to <tt class="xref py py-func docutils literal"><span class="pre">str()</span></tt> to output an informative result string.</p>
+<p>For <a class="reference internal" href="#AssertTruthResult" title="AssertTruthResult"><tt class="xref py py-class docutils literal"><span class="pre">AssertTruthResult</span></tt></a>, <a class="reference internal" href="#AssertEqualsResult" title="AssertEqualsResult"><tt class="xref py py-class docutils literal"><span class="pre">AssertEqualsResult</span></tt></a>, <a class="reference internal" href="#AssertInResult" title="AssertInResult"><tt class="xref py py-class docutils literal"><span class="pre">AssertInResult</span></tt></a>, <a class="reference internal" href="#AssertInstanceResult" title="AssertInstanceResult"><tt class="xref py py-class docutils literal"><span class="pre">AssertInstanceResult</span></tt></a>, and <a class="reference internal" href="#AssertAttribResult" title="AssertAttribResult"><tt class="xref py py-class docutils literal"><span class="pre">AssertAttribResult</span></tt></a>, the additional arguments are the parameters that were passed into the corresponding assert/eval function.</p>
+<p>Since <a class="reference internal" href="#AssertRaisesResult" title="AssertRaisesResult"><tt class="xref py py-class docutils literal"><span class="pre">AssertRaisesResult</span></tt></a> and <a class="reference internal" href="#ExpectedErrorResult" title="ExpectedErrorResult"><tt class="xref py py-class docutils literal"><span class="pre">ExpectedErrorResult</span></tt></a> both deal with expected errors, their parameters do not directly map to their data.</p>
+<dl class="class">
+<dt id="AssertTruthResult">
+<em class="property">class </em><tt class="descname">AssertTruthResult</tt><big>(</big><em>lineno</em>, <em>call</em>, <em>result</em>, <em>value</em><big>)</big><a class="headerlink" href="#AssertTruthResult" title="Permalink to this definition">¶</a></dt>
+<dd><p>The result of a call to <a class="reference internal" href="asserts.html#assert_true" title="assert_true"><tt class="xref py py-func docutils literal"><span class="pre">assert_true()</span></tt></a>, <a class="reference internal" href="asserts.html#assert_false" title="assert_false"><tt class="xref py py-func docutils literal"><span class="pre">assert_false()</span></tt></a>, <a class="reference internal" href="asserts.html#eval_true" title="eval_true"><tt class="xref py py-func docutils literal"><span class="pre">eval_true()</span></tt></a>, or <a class="reference internal" href="asserts.html#eval_false" title="eval_false"><tt class="xref py py-func docutils literal"><span class="pre">eval_false()</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="AssertEqualsResult">
+<em class="property">class </em><tt class="descname">AssertEqualsResult</tt><big>(</big><em>lineno</em>, <em>call</em>, <em>result</em>, <em>actual</em>, <em>expected</em><big>)</big><a class="headerlink" href="#AssertEqualsResult" title="Permalink to this definition">¶</a></dt>
+<dd><p>The result of a call to <a class="reference internal" href="asserts.html#assert_equal" title="assert_equal"><tt class="xref py py-func docutils literal"><span class="pre">assert_equal()</span></tt></a>, <a class="reference internal" href="asserts.html#assert_not_equal" title="assert_not_equal"><tt class="xref py py-func docutils literal"><span class="pre">assert_not_equal()</span></tt></a>, <a class="reference internal" href="asserts.html#assert_is" title="assert_is"><tt class="xref py py-func docutils literal"><span class="pre">assert_is()</span></tt></a>, <a class="reference internal" href="asserts.html#assert_is_not" title="assert_is_not"><tt class="xref py py-func docutils literal"><span class="pre">assert_is_not()</span></tt></a>, <a class="reference internal" href="asserts.html#assert_none" title="assert_none"><tt class="xref py py-func docutils literal"><span class="pre">assert_none()</span></tt></a>, <a class="reference internal" href="asserts.html#assert_not_none" title="assert_not_none"><tt class="xref py py-func docutils literal"><span class="pre">assert_not_none()</span></tt></a>,  <a class="reference internal" href="asserts.html#eval_equal" title="eval_equal"><tt class="xref py py-func docutils literal"><span class="pre">eval_equal()</span></tt></a>, <a class="reference internal" href="asserts.html#eval_not_equal" title="eval_not_equal"><tt class="xref py py-func docutils literal"><span class="pre">eval_not_equal()</span></tt></a>, <a class="reference internal" href="asserts.html#eval_is" title="eval_is"><tt class="xref py py-func docutils literal"><span class="pre">eval_is()</span></tt></a>, <a class="reference internal" href="asserts.html#eval_is_not" title="eval_is_not"><tt class="xref py py-func docutils literal"><span class="pre">eval_is_not()</span></tt></a>, <a class="reference internal" href="asserts.html#eval_none" title="eval_none"><tt class="xref py py-func docutils literal"><span class="pre">eval_none()</span></tt></a>, or <a class="reference internal" href="asserts.html#eval_not_none" title="eval_not_none"><tt class="xref py py-func docutils literal"><span class="pre">eval_not_none()</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="AssertInResult">
+<em class="property">class </em><tt class="descname">AssertInResult</tt><big>(</big><em>lineno</em>, <em>call</em>, <em>result</em>, <em>item</em>, <em>collection</em><big>)</big><a class="headerlink" href="#AssertInResult" title="Permalink to this definition">¶</a></dt>
+<dd><p>The result of a call to <a class="reference internal" href="asserts.html#assert_in" title="assert_in"><tt class="xref py py-func docutils literal"><span class="pre">assert_in()</span></tt></a>, <a class="reference internal" href="asserts.html#assert_not_in" title="assert_not_in"><tt class="xref py py-func docutils literal"><span class="pre">assert_not_in()</span></tt></a>, <a class="reference internal" href="asserts.html#eval_in" title="eval_in"><tt class="xref py py-func docutils literal"><span class="pre">eval_in()</span></tt></a>, or <a class="reference internal" href="asserts.html#eval_not_in" title="eval_not_in"><tt class="xref py py-func docutils literal"><span class="pre">eval_not_in()</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="AssertInstanceResult">
+<em class="property">class </em><tt class="descname">AssertInstanceResult</tt><big>(</big><em>lineno</em>, <em>call</em>, <em>result</em>, <em>obj</em>, <em>cls</em><big>)</big><a class="headerlink" href="#AssertInstanceResult" title="Permalink to this definition">¶</a></dt>
+<dd><p>The result of a call to <a class="reference internal" href="asserts.html#assert_is_instance" title="assert_is_instance"><tt class="xref py py-func docutils literal"><span class="pre">assert_is_instance()</span></tt></a>, <a class="reference internal" href="asserts.html#assert_is_not_instance" title="assert_is_not_instance"><tt class="xref py py-func docutils literal"><span class="pre">assert_is_not_instance()</span></tt></a>, <a class="reference internal" href="asserts.html#eval_is_instance" title="eval_is_instance"><tt class="xref py py-func docutils literal"><span class="pre">eval_is_instance()</span></tt></a>, or <a class="reference internal" href="asserts.html#eval_is_not_instance" title="eval_is_not_instance"><tt class="xref py py-func docutils literal"><span class="pre">eval_is_not_instance()</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="AssertAttribResult">
+<em class="property">class </em><tt class="descname">AssertAttribResult</tt><big>(</big><em>lineno</em>, <em>call</em>, <em>result</em>, <em>obj</em>, <em>attrib_name</em><big>)</big><a class="headerlink" href="#AssertAttribResult" title="Permalink to this definition">¶</a></dt>
+<dd><p>The result of a call to <a class="reference internal" href="asserts.html#assert_attrib" title="assert_attrib"><tt class="xref py py-func docutils literal"><span class="pre">assert_attrib()</span></tt></a>, <a class="reference internal" href="asserts.html#assert_not_attrib" title="assert_not_attrib"><tt class="xref py py-func docutils literal"><span class="pre">assert_not_attrib()</span></tt></a>, <a class="reference internal" href="asserts.html#eval_attrib" title="eval_attrib"><tt class="xref py py-func docutils literal"><span class="pre">eval_attrib()</span></tt></a>, or <a class="reference internal" href="asserts.html#eval_not_attrib" title="eval_not_attrib"><tt class="xref py py-func docutils literal"><span class="pre">eval_not_attrib()</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="AssertRaisesResult">
+<em class="property">class </em><tt class="descname">AssertRaisesResult</tt><big>(</big><em>lineno</em>, <em>call</em>, <em>result</em>, <em>expected</em>, <em>func</em>, <em>args</em>, <em>kwargs</em><big>)</big><a class="headerlink" href="#AssertRaisesResult" title="Permalink to this definition">¶</a></dt>
+<dd><p>The result of a call to <a class="reference internal" href="asserts.html#assert_raises" title="assert_raises"><tt class="xref py py-func docutils literal"><span class="pre">assert_raises()</span></tt></a> or <a class="reference internal" href="asserts.html#eval_raises" title="eval_raises"><tt class="xref py py-func docutils literal"><span class="pre">eval_raises()</span></tt></a>.</p>
+<p><tt class="docutils literal"><span class="pre">result</span></tt> is expected to be a string containing the corresponding traceback, or an empty string to indicate no exception occurred.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="ExpectedErrorResult">
+<em class="property">class </em><tt class="descname">ExpectedErrorResult</tt><big>(</big><em>result</em>, <em>expected</em>, <em>lineno=None</em><big>)</big><a class="headerlink" href="#ExpectedErrorResult" title="Permalink to this definition">¶</a></dt>
+<dd><p>This object is not actually the result of a call to an assert function. Rather, it occurs when an error was raised somewhere in the test, and that error was marked as expected in the <tt class="docutils literal"><span class="pre">&#64;test</span></tt> tag. Why is it underneath AssertResult, then? Because it is similar enough that it didn&#8217;t make sense to separate it. That being said, I&#8217;ve come to the conclusion that it really shouldn&#8217;t be here, so it will be moving soon.</p>
+<p>Contained within it are the expected error and the lineno it occurred on, if it occurred. If an error was expected but didn&#8217;t occur, <tt class="docutils literal"><span class="pre">lineno</span></tt> will be <tt class="xref py py-const docutils literal"><span class="pre">None</span></tt>.</p>
+<p>The value for <tt class="docutils literal"><span class="pre">call</span></tt> will always be <tt class="xref py py-const docutils literal"><span class="pre">None</span></tt> since there is no explicit assert call that caused the error. I may be able to detect the line the error actually occurred on, but currently don&#8217;t. While this would have some value, it would be tricky to do without making some environment assumptions. Additionally, <a class="reference internal" href="asserts.html#assert_raises" title="assert_raises"><tt class="xref py py-func docutils literal"><span class="pre">assert_raises()</span></tt></a> allows for just this functionality.</p>
+</dd></dl>
+
+<p>The following assert result objects are also actually raised, but inherit directly from <a class="reference internal" href="#Result" title="Result"><tt class="xref py py-class docutils literal"><span class="pre">Result</span></tt></a>.</p>
+<dl class="class">
+<dt id="FailResult">
+<em class="property">class </em><tt class="descname">FailResult</tt><big>(</big><em>lineno</em>, <em>mess</em><big>)</big><a class="headerlink" href="#FailResult" title="Permalink to this definition">¶</a></dt>
+<dd><p>Occurs when <tt class="xref py py-func docutils literal"><span class="pre">fail()</span></tt> is called.</p>
+<p>The value of <tt class="docutils literal"><span class="pre">result</span></tt> will always be <tt class="xref py py-const docutils literal"><span class="pre">False</span></tt>, since <tt class="xref py py-func docutils literal"><span class="pre">fail()</span></tt> forces the test to fail. <tt class="docutils literal"><span class="pre">lineno</span></tt> is the line that fail occurred on, and <tt class="docutils literal"><span class="pre">mess</span></tt> is the user provided message.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="UnexpectedError">
+<em class="property">class </em><tt class="descname">UnexpectedError</tt><big>(</big><em>trace</em><big>)</big><a class="headerlink" href="#UnexpectedError" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the result when an unexpected error occurs. An unexpected error is an error that is not defined by the <tt class="docutils literal"><span class="pre">&#64;test</span></tt> tag, occurs outside of an assert_raises function, or is not defined for the current assert_raises function.</p>
+<p>The value of <tt class="docutils literal"><span class="pre">result</span></tt> will always be <tt class="xref py py-const docutils literal"><span class="pre">None</span></tt>, to indicate an unexpected error. <tt class="docutils literal"><span class="pre">trace</span></tt> contains the traceback of the unexpected error.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="test-result-objects">
+<h2>Test Result Objects<a class="headerlink" href="#test-result-objects" title="Permalink to this headline">¶</a></h2>
+<p>The following classes form the base for the rest of the test result objects. Note that each of them inherits from <tt class="xref py py-class docutils literal"><span class="pre">list</span></tt>.</p>
+<dl class="class">
+<dt id="TestResultStruct">
+<em class="property">class </em><tt class="descname">TestResultStruct</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#TestResultStruct" title="Permalink to this definition">¶</a></dt>
+<dd><p>The base test result class. All results inherit from this, either directly or indirectly.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="TestResultContainer">
+<em class="property">class </em><tt class="descname">TestResultContainer</tt><a class="headerlink" href="#TestResultContainer" title="Permalink to this definition">¶</a></dt>
+<dd><p>The base class for test results objects that are a collection of other test results objects, eg. <a class="reference internal" href="#TestClassResult" title="TestClassResult"><tt class="xref py py-class docutils literal"><span class="pre">TestClassResult</span></tt></a>, <a class="reference internal" href="#TestModuleResult" title="TestModuleResult"><tt class="xref py py-class docutils literal"><span class="pre">TestModuleResult</span></tt></a>, and <a class="reference internal" href="#TestSuiteResult" title="TestSuiteResult"><tt class="xref py py-class docutils literal"><span class="pre">TestSuiteResult</span></tt></a>.</p>
+</dd></dl>
+
+<p>The following test result objects are directly returned when a data object is called.</p>
+<dl class="class">
+<dt id="TestResult">
+<em class="property">class </em><tt class="descname">TestResult</tt><a class="headerlink" href="#TestResult" title="Permalink to this definition">¶</a></dt>
+<dd><p>Contains the assert result objects for each assert that was called in the corresponding test. This is the only test result object which can contain assert result objects, and in fact cannot contain other test result objects.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="TestClassResult">
+<em class="property">class </em><tt class="descname">TestClassResult</tt><a class="headerlink" href="#TestClassResult" title="Permalink to this definition">¶</a></dt>
+<dd><p>Contains a test result object for each test in this class. Can only contain <a class="reference internal" href="#TestResult" title="TestResult"><tt class="xref py py-class docutils literal"><span class="pre">TestResult</span></tt></a> objects.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="TestModuleResult">
+<em class="property">class </em><tt class="descname">TestModuleResult</tt><a class="headerlink" href="#TestModuleResult" title="Permalink to this definition">¶</a></dt>
+<dd><p>Contains a test result object for each class in this module. Can only contain <tt class="xref py py-class docutils literal"><span class="pre">TestResultClass</span></tt> objects.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="TestSuiteResult">
+<em class="property">class </em><tt class="descname">TestSuiteResult</tt><a class="headerlink" href="#TestSuiteResult" title="Permalink to this definition">¶</a></dt>
+<dd><p>Contains a test result object for each module in this suite. Can only contain <tt class="xref py py-class docutils literal"><span class="pre">TestResultModule</span></tt> objects.</p>
+</dd></dl>
+
+<p>All test result objects (except the base <a class="reference internal" href="#TestResultStruct" title="TestResultStruct"><tt class="xref py py-class docutils literal"><span class="pre">TestResultStruct</span></tt></a>) contain the following method.</p>
+<dl class="function">
+<dt id="get_status">
+<tt class="descname">get_status</tt><big>(</big><big>)</big><a class="headerlink" href="#get_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gathers the state of all (test and assert) result objects and returns it. If any unexpected errors have occurred, the test is reported to have terminated with an error. If no unexpected errors occurred but at least one assert failed, the test is reported to have failed. If there were no unexpected errors and no failed asserts, the test passed.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><tt class="docutils literal"><span class="pre">results</span></tt></a><ul>
+<li><a class="reference internal" href="#assert-result-objects">Assert Result Objects</a></li>
+<li><a class="reference internal" href="#test-result-objects">Test Result Objects</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="data.html"
+                        title="previous chapter"><tt class="docutils literal docutils literal docutils literal docutils literal"><span class="pre">data</span></tt></a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="printers.html"
+                        title="next chapter"><tt class="docutils literal docutils literal docutils literal"><span class="pre">printers</span></tt></a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/results.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="printers.html" title="printers"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="data.html" title="data"
+             >previous</a> |</li>
+        <li><a href="index.html">PyInq 0.2.0 documentation</a> &raquo;</li>
+          <li><a href="reference.html" >Reference</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Austin Noto-Moniz.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

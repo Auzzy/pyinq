@@ -1,8 +1,8 @@
 from pyinq import discover_tests
+from pyinq import printers
 
+suite = discover_tests('examples', suite_name="hello")
+if suite:
+	report = suite()
+	printers.print_report(report)
 
-if __name__=="__main__":
-    print "EXAMPLES DISCOVER API TEST"
-    suite = discover_tests('examples')
-    if suite:
-        suite()
